@@ -28,6 +28,22 @@
 	font-size: 14px;
 }
 
+.cts-awards-search-form input[type="number"] {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 14px;
+	max-width: 200px;
+}
+
+.cts-awards-search-form select:disabled,
+.cts-awards-search-form input:disabled {
+	background-color: #f5f5f5;
+	color: #999;
+	cursor: not-allowed;
+}
+
 .cts-awards-search-form button {
 	background: #0073aa;
 	color: white;
@@ -37,10 +53,33 @@
 	cursor: pointer;
 	font-size: 14px;
 	transition: background-color 0.3s;
+	margin-right: 10px;
+}
+
+.cts-awards-search-form button.btn-secondary {
+	background: #666;
 }
 
 .cts-awards-search-form button:hover {
 	background: #005a87;
+}
+
+.cts-awards-search-form button.btn-secondary:hover {
+	background: #444;
+}
+
+/* Filter Info Styles */
+.cts-awards-filters-info {
+	background: #e7f3ff;
+	padding: 15px;
+	border-radius: 4px;
+	margin-bottom: 20px;
+	border-left: 4px solid #0073aa;
+}
+
+.cts-awards-filters-info p {
+	margin: 0;
+	color: #333;
 }
 
 /* Awards Grid */

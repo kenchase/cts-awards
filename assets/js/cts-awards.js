@@ -13,42 +13,77 @@ document.addEventListener("DOMContentLoaded", function () {
 function initAwardsSearchForm() {
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-name");
+	const postIdInput = document.getElementById("award-post-id");
 	const form = document.getElementById("cts-awards-search");
+	const resetButton = document.getElementById("reset-filters");
 
-	// Exit if form elements don't exist
-	if (!yearSelect || !awardSelect || !form) {
+	// Exit if form doesn't exist
+	if (!form) {
 		return;
 	}
 
-	// Get API URL and current values from data attributes
-	const apiUrl = form.dataset.apiUrl;
+	// Get current values from data attributes
 	const currentYear = form.dataset.currentYear;
 	const currentAward = form.dataset.currentAward;
-
-	if (!apiUrl) {
-		console.error("CTS Awards: API URL not found");
-		return;
-	}
-
-	// Fetch awards data from REST API
-	fetch(apiUrl)
-		.then((response) => response.json())
-		.then((data) => {
-			populateYearDropdown(yearSelect, data, currentYear);
-			populateAwardDropdown(awardSelect, data, currentAward);
-		})
-		.catch((error) => {
-			console.error("Error fetching awards data:", error);
-			// Reset dropdowns to defaults on error
-			yearSelect.innerHTML = '<option value="all">All Years</option>';
-			awardSelect.innerHTML = '<option value="">All Awards</option>';
-		});
+	const currentPostId = form.dataset.currentPostId;
 
 	// Handle form submission
 	form.addEventListener("submit", function (e) {
 		e.preventDefault();
 		handleFormSubmission(form);
 	});
+
+	// Handle reset button
+	if (resetButton) {
+		resetButton.addEventListener("click", function (e) {
+			e.preventDefault();
+			resetFilters();
+		});
+	}
+
+	// Handle post ID input changes
+	if (postIdInput) {
+		postIdInput.addEventListener("input", function () {
+			// If post ID is entered, disable other filters
+			const hasPostId = this.value.trim() !== "";
+			
+			if (yearSelect) {
+				yearSelect.disabled = hasPostId;
+				if (hasPostId) yearSelect.value = "all";
+			}
+			
+			if (awardSelect) {
+				awardSelect.disabled = hasPostId;
+				if (hasPostId) awardSelect.value = "";
+			}
+		});
+	}
+
+	// Handle year/award changes to clear post ID
+	if (yearSelect) {
+		yearSelect.addEventListener("change", function () {
+			if (postIdInput && this.value !== "all") {
+				postIdInput.value = "";
+			}
+		});
+	}
+
+	if (awardSelect) {
+		awardSelect.addEventListener("change", function () {
+			if (postIdInput && this.value !== "") {
+				postIdInput.value = "";
+			}
+		});
+	}
+}
+
+/**
+ * Reset all filters to their default values
+ */
+function resetFilters() {
+	// Remove all query parameters and reload
+	const currentUrl = new URL(window.location);
+	window.location.href = currentUrl.pathname;
 }
 
 /**
@@ -105,17 +140,20 @@ function handleFormSubmission(form) {
 	const params = new URLSearchParams();
 
 	// Build query parameters
-	if (formData.get("year") && formData.get("year") !== "all") {
-		params.append("year", formData.get("year"));
-	}
-	if (formData.get("award_name")) {
-		params.append("award_name", formData.get("award_name"));
+	if (formData.get("post_id") && formData.get("post_id") !== "") {
+		params.append("post_id", formData.get("post_id"));
+	} else {
+		// Only include year and award_name if no post_id is specified
+		if (formData.get("year") && formData.get("year") !== "all") {
+			params.append("year", formData.get("year"));
+		}
+		if (formData.get("award_name") && formData.get("award_name") !== "") {
+			params.append("award_name", formData.get("award_name"));
+		}
 	}
 
 	// Reload page with new parameters
 	const currentUrl = new URL(window.location);
-	const newUrl =
-		currentUrl.pathname +
-		(params.toString() ? "?" + params.toString() : "");
+	const newUrl = currentUrl.pathname + (params.toString() ? "?" + params.toString() : "");
 	window.location.href = newUrl;
 }

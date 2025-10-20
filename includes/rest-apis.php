@@ -16,6 +16,24 @@ function cts_awards_register_api()
         'methods' => 'GET',
         'callback' => 'cts_awards_get_awards',
         'permission_callback' => '__return_true',
+        'args' => array(
+            'post_id' => array(
+                'description' => 'Filter awards by specific post ID',
+                'type' => 'integer',
+                'sanitize_callback' => 'absint',
+                'validate_callback' => function($param, $request, $key) {
+                    return is_numeric($param) && $param > 0;
+                }
+            ),
+            'year' => array(
+                'description' => 'Filter awards by recipient year',
+                'type' => 'integer',
+                'sanitize_callback' => 'absint',
+                'validate_callback' => function($param, $request, $key) {
+                    return is_numeric($param) && $param >= 1900 && $param <= date('Y') + 10;
+                }
+            ),
+        ),
     ));
 }
 add_action('rest_api_init', 'cts_awards_register_api');
@@ -25,13 +43,26 @@ add_action('rest_api_init', 'cts_awards_register_api');
  */
 function cts_awards_get_awards($request)
 {
-    $awards = get_posts(array(
+    // Get parameters from request
+    $post_id = $request->get_param('post_id');
+    $year = $request->get_param('year');
+
+    // Build query args
+    $query_args = array(
         'post_type' => 'awards',
         'post_status' => 'publish',
         'numberposts' => -1,
         'orderby' => 'title',
         'order' => 'ASC',
-    ));
+    );
+
+    // If post_id is specified, filter by specific post
+    if ($post_id) {
+        $query_args['p'] = $post_id;
+        $query_args['numberposts'] = 1;
+    }
+
+    $awards = get_posts($query_args);
 
     $formatted_awards = array();
 
@@ -47,6 +78,11 @@ function cts_awards_get_awards($request)
 
         if ($recipients) {
             foreach ($recipients as $recipient) {
+                // If year parameter is specified, filter recipients by year
+                if ($year && isset($recipient['cts_awd_rcpt_year']) && $recipient['cts_awd_rcpt_year'] != $year) {
+                    continue;
+                }
+
                 $photo_url = null;
                 if (!empty($recipient['imagects_awd_rcpt_photo'])) {
                     $photo_url = wp_get_attachment_image_url($recipient['imagects_awd_rcpt_photo'], 'full');
@@ -60,6 +96,11 @@ function cts_awards_get_awards($request)
                     'photo' => $photo_url,
                 );
             }
+        }
+
+        // If year filtering is applied and no recipients match, skip this award
+        if ($year && empty($formatted_recipients)) {
+            continue;
         }
 
         $formatted_awards[] = array(

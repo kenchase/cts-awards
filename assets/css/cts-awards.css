@@ -1,3 +1,197 @@
-body {
-	background-color: red !important;
+/* CTS Awards Plugin Styles */
+
+/* Search Form Styles */
+.cts-awards-search-form {
+	background: #f9f9f9;
+	padding: 20px;
+	border-radius: 8px;
+	margin-bottom: 30px;
+	border: 1px solid #ddd;
+}
+
+.cts-awards-search-form .form-group {
+	margin-bottom: 15px;
+}
+
+.cts-awards-search-form label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: bold;
+	color: #333;
+}
+
+.cts-awards-search-form select {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.cts-awards-search-form button {
+	background: #0073aa;
+	color: white;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s;
+}
+
+.cts-awards-search-form button:hover {
+	background: #005a87;
+}
+
+/* Awards Grid */
+.cts-awards-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+	gap: 20px;
+	margin-top: 20px;
+}
+
+/* Award Card Styles */
+.cts-award-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: box-shadow 0.3s;
+}
+
+.cts-award-card:hover {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cts-award-title {
+	color: #0073aa;
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 1.3em;
+	border-bottom: 2px solid #0073aa;
+	padding-bottom: 8px;
+}
+
+.cts-award-year-badge {
+	background: #0073aa;
+	color: white;
+	font-size: 0.8em;
+	font-weight: normal;
+	padding: 4px 8px;
+	border-radius: 4px;
+	margin-left: 8px;
+	white-space: nowrap;
+}
+
+.cts-award-description {
+	margin-bottom: 20px;
+	color: #666;
+	line-height: 1.5;
+}
+
+/* Recipients Section */
+.cts-award-recipients h4 {
+	margin-top: 0;
+	margin-bottom: 15px;
+	color: #333;
+	font-size: 1.1em;
+	border-bottom: 1px solid #eee;
+	padding-bottom: 5px;
+}
+
+.cts-recipient {
+	display: flex;
+	gap: 15px;
+	margin-bottom: 20px;
+	padding: 15px;
+	background: #f8f9fa;
+	border-radius: 6px;
+	border-left: 4px solid #0073aa;
+}
+
+.cts-recipient:last-child {
+	margin-bottom: 0;
+}
+
+.cts-recipient-photo img {
+	width: 80px;
+	height: 80px;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 3px solid #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cts-recipient-details {
+	flex: 1;
+}
+
+.cts-recipient-details > div {
+	margin-bottom: 8px;
+}
+
+.cts-recipient-details > div:last-child {
+	margin-bottom: 0;
+}
+
+.cts-recipient-year {
+	color: #0073aa;
+	font-weight: 600;
+}
+
+.cts-recipient-title {
+	color: #333;
+	font-size: 1.05em;
+}
+
+.cts-recipient-org {
+	color: #666;
+	font-style: italic;
+}
+
+.cts-recipient-abstract {
+	color: #555;
+	font-size: 0.95em;
+	line-height: 1.4;
+}
+
+/* No results messages */
+.cts-no-recipients,
+.cts-no-awards {
+	text-align: center;
+	padding: 40px 20px;
+	color: #666;
+	font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.cts-awards-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.cts-recipient {
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.cts-recipient-photo {
+		align-self: center;
+	}
+
+	.cts-awards-search-form {
+		padding: 15px;
+	}
+}
+
+@media (max-width: 480px) {
+	.cts-award-card {
+		padding: 15px;
+	}
+
+	.cts-recipient {
+		padding: 10px;
+	}
 }

@@ -40,7 +40,7 @@ function cts_awards_custom_post()
         'rewrite' => array('slug' => 'awards'),
         'exclude_from_search' => false,
         'hierarchical' => false,
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'author'),
+        'supports' => array('title', 'editor', 'excerpt', 'author'),
     );
     register_post_type('awards', $post_type_args);
 }

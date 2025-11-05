@@ -79,7 +79,7 @@ function cts_awards_get_awards($request)
         if ($recipients) {
             foreach ($recipients as $recipient) {
                 // If year parameter is specified, filter recipients by year
-                if ($year && isset($recipient['cts_awd_rcpt_year']) && $recipient['cts_awd_rcpt_year'] != $year) {
+                if ($year && isset($recipient['cts_awd_rcpt_year']) && intval($recipient['cts_awd_rcpt_year']) != intval($year)) {
                     continue;
                 }
 

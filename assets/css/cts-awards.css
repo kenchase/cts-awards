@@ -163,6 +163,20 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.cts-recipient-photo .dashicons {
+	width: 80px;
+	height: 80px;
+	font-size: 40px;
+	border-radius: 50%;
+	border: 3px solid #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background: #f0f0f0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #666;
+}
+
 .cts-recipient-details {
 	flex: 1;
 }

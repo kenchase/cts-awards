@@ -30,6 +30,7 @@ function initAwardsSearchForm() {
 	// Handle form submission
 	form.addEventListener("submit", function (e) {
 		e.preventDefault();
+		console.log("Submitting awards search form");
 		handleFormSubmission(form);
 	});
 
@@ -46,12 +47,12 @@ function initAwardsSearchForm() {
 		postIdInput.addEventListener("input", function () {
 			// If post ID is entered, disable other filters
 			const hasPostId = this.value.trim() !== "";
-			
+
 			if (yearSelect) {
 				yearSelect.disabled = hasPostId;
 				if (hasPostId) yearSelect.value = "all";
 			}
-			
+
 			if (awardSelect) {
 				awardSelect.disabled = hasPostId;
 				if (hasPostId) awardSelect.value = "";
@@ -154,6 +155,8 @@ function handleFormSubmission(form) {
 
 	// Reload page with new parameters
 	const currentUrl = new URL(window.location);
-	const newUrl = currentUrl.pathname + (params.toString() ? "?" + params.toString() : "");
+	const newUrl =
+		currentUrl.pathname +
+		(params.toString() ? "?" + params.toString() : "");
 	window.location.href = newUrl;
 }

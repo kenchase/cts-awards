@@ -21,7 +21,7 @@ function cts_awards_register_api()
                 'description' => 'Filter awards by specific post ID',
                 'type' => 'integer',
                 'sanitize_callback' => 'absint',
-                'validate_callback' => function($param, $request, $key) {
+                'validate_callback' => function ($param, $request, $key) {
                     return is_numeric($param) && $param > 0;
                 }
             ),
@@ -29,7 +29,7 @@ function cts_awards_register_api()
                 'description' => 'Filter awards by recipient year',
                 'type' => 'integer',
                 'sanitize_callback' => 'absint',
-                'validate_callback' => function($param, $request, $key) {
+                'validate_callback' => function ($param, $request, $key) {
                     return is_numeric($param) && $param >= 1900 && $param <= date('Y') + 10;
                 }
             ),
@@ -90,6 +90,8 @@ function cts_awards_get_awards($request)
 
                 $formatted_recipients[] = array(
                     'year' => isset($recipient['cts_awd_rcpt_year']) ? $recipient['cts_awd_rcpt_year'] : '',
+                    'fname' => isset($recipient['cts_awd_rcpt_fname']) ? $recipient['cts_awd_rcpt_fname'] : '',
+                    'lname' => isset($recipient['cts_awd_rcpt_lname']) ? $recipient['cts_awd_rcpt_lname'] : '',
                     'title' => isset($recipient['cts_awd_rcpt_title']) ? $recipient['cts_awd_rcpt_title'] : '',
                     'organization' => isset($recipient['cts_awd_rcpt_org']) ? $recipient['cts_awd_rcpt_org'] : '',
                     'abstract_title' => isset($recipient['cts_awd_rcpt_abstr_title']) ? $recipient['cts_awd_rcpt_abstr_title'] : '',

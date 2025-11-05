@@ -10,12 +10,17 @@ if (!defined('ABSPATH')) {
  */
 function cts_awards_enqueue_assets()
 {
+    // Enqueue dashicons for frontend use
+    if (!wp_style_is('dashicons', 'enqueued')) {
+        wp_enqueue_style('dashicons');
+    }
+
     // Only enqueue if not already enqueued
     if (!wp_style_is('cts-awards-style', 'enqueued')) {
         wp_enqueue_style(
             'cts-awards-style',
             plugin_dir_url(dirname(__FILE__)) . 'assets/css/cts-awards.css',
-            array(),
+            array('dashicons'),
             '1.0.0'
         );
     }
@@ -39,13 +44,13 @@ function cts_awards_enqueue_assets()
 function cts_awards_get_available_years()
 {
     $years = array();
-    
+
     $awards = get_posts(array(
         'post_type' => 'awards',
         'post_status' => 'publish',
         'numberposts' => -1,
     ));
-    
+
     foreach ($awards as $award) {
         if (function_exists('get_field')) {
             $recipients = get_field('cts_awd_rcpts', $award->ID);
@@ -58,10 +63,10 @@ function cts_awards_get_available_years()
             }
         }
     }
-    
+
     $years = array_unique($years);
     rsort($years); // Sort years in descending order
-    
+
     return $years;
 }
 
@@ -79,12 +84,12 @@ function cts_awards_get_available_awards()
         'orderby' => 'title',
         'order' => 'ASC',
     ));
-    
+
     $award_titles = array();
     foreach ($awards as $award) {
         $award_titles[] = $award->post_title;
     }
-    
+
     return $award_titles;
 }
 
@@ -163,13 +168,13 @@ function cts_awards_shortcode($atts)
         $output .= '<label for="award-year">Filter by Year:</label>';
         $output .= '<select id="award-year" name="year">';
         $output .= '<option value="all"' . selected($year, 'all', false) . '>All Years</option>';
-        
+
         // Get available years from awards
         $available_years = cts_awards_get_available_years();
         foreach ($available_years as $available_year) {
             $output .= '<option value="' . esc_attr($available_year) . '"' . selected($year, $available_year, false) . '>' . esc_html($available_year) . '</option>';
         }
-        
+
         $output .= '</select>';
         $output .= '</div>';
 
@@ -178,13 +183,13 @@ function cts_awards_shortcode($atts)
         $output .= '<label for="award-name">Filter by Award:</label>';
         $output .= '<select id="award-name" name="award_name">';
         $output .= '<option value=""' . selected($award_name, '', false) . '>All Awards</option>';
-        
+
         // Get available awards
         $available_awards = cts_awards_get_available_awards();
         foreach ($available_awards as $award_title) {
             $output .= '<option value="' . esc_attr($award_title) . '"' . selected($award_name, $award_title, false) . '>' . esc_html($award_title) . '</option>';
         }
-        
+
         $output .= '</select>';
         $output .= '</div>';
 
@@ -203,11 +208,11 @@ function cts_awards_shortcode($atts)
 
     // Display current filter information
     $filter_info = array();
-    
+
     if ($post_id > 0) {
         $filter_info[] = 'Award ID: ' . $post_id;
     }
-    
+
     if (!empty($award_name)) {
         $filter_info[] = 'Award: ' . esc_html($award_name);
     }
@@ -215,7 +220,7 @@ function cts_awards_shortcode($atts)
     if ($year !== 'all') {
         $filter_info[] = 'Year: ' . esc_html($year);
     }
-    
+
     if (!empty($filter_info)) {
         $output .= '<div class="cts-awards-filters-info">';
         $output .= '<p><strong>Filtered by:</strong> ' . implode(' | ', $filter_info) . '</p>';
@@ -327,21 +332,59 @@ function cts_awards_shortcode($atts)
                 foreach ($year_recipients as $recipient) {
                     $output .= '<div class="cts-recipient">';
 
-                    // Recipient photo
+                    // Recipient photo or default icon
+                    $output .= '<div class="cts-recipient-photo">';
+
                     if (!empty($recipient['imagects_awd_rcpt_photo'])) {
                         $photo_url = wp_get_attachment_image_url($recipient['imagects_awd_rcpt_photo'], 'thumbnail');
                         if ($photo_url) {
-                            $output .= '<div class="cts-recipient-photo">';
-                            $output .= '<img src="' . esc_url($photo_url) . '" alt="' . esc_attr($recipient['cts_awd_rcpt_title'] ?? 'Recipient photo') . '">';
-                            $output .= '</div>';
+                            // Build name for alt text
+                            $photo_alt = '';
+                            if (!empty($recipient['cts_awd_rcpt_fname'])) {
+                                $photo_alt .= $recipient['cts_awd_rcpt_fname'];
+                            }
+                            if (!empty($recipient['cts_awd_rcpt_lname'])) {
+                                if (!empty($photo_alt)) {
+                                    $photo_alt .= ' ';
+                                }
+                                $photo_alt .= $recipient['cts_awd_rcpt_lname'];
+                            }
+                            if (empty($photo_alt)) {
+                                $photo_alt = 'Recipient photo';
+                            }
+
+                            $output .= '<img src="' . esc_url($photo_url) . '" alt="' . esc_attr($photo_alt) . '">';
+                        } else {
+                            // Show default dashicon if photo URL is invalid
+                            $output .= '<span class="dashicons dashicons-admin-users"></span>';
                         }
+                    } else {
+                        // Show default dashicon if no photo is set
+                        $output .= '<span class="dashicons dashicons-admin-users"></span>';
                     }
+
+                    $output .= '</div>';
 
                     $output .= '<div class="cts-recipient-details">';
 
-                    // Recipient title/name
+                    // Recipient name (first name + last name)
+                    $recipient_name = '';
+                    if (!empty($recipient['cts_awd_rcpt_fname'])) {
+                        $recipient_name .= $recipient['cts_awd_rcpt_fname'];
+                    }
+                    if (!empty($recipient['cts_awd_rcpt_lname'])) {
+                        if (!empty($recipient_name)) {
+                            $recipient_name .= ' ';
+                        }
+                        $recipient_name .= $recipient['cts_awd_rcpt_lname'];
+                    }
+                    if (!empty($recipient_name)) {
+                        $output .= '<div class="cts-recipient-name"><strong>Recipient:</strong> ' . esc_html($recipient_name) . '</div>';
+                    }
+
+                    // Recipient title/position
                     if (!empty($recipient['cts_awd_rcpt_title'])) {
-                        $output .= '<div class="cts-recipient-title"><strong>Recipient:</strong> ' . esc_html($recipient['cts_awd_rcpt_title']) . '</div>';
+                        $output .= '<div class="cts-recipient-title"><strong>Title:</strong> ' . esc_html($recipient['cts_awd_rcpt_title']) . '</div>';
                     }
 
                     // Organization

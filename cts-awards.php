@@ -22,5 +22,6 @@ if (!defined('ABSPATH')) {
 
 // Include required files
 require_once plugin_dir_path(__FILE__) . 'includes/custom-posts.php';
+require_once plugin_dir_path(__FILE__) . 'includes/custom-taxonomies.php';
 require_once plugin_dir_path(__FILE__) . 'includes/rest-apis.php';
 require_once plugin_dir_path(__FILE__) . 'includes/shortcodes.php';

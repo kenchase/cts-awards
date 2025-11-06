@@ -97,14 +97,43 @@ function cts_awards_get_available_awards()
 }
 
 /**
+ * Get available award categories
+ * 
+ * @return array Array of categories with ID, name, and slug
+ */
+function cts_awards_get_available_categories()
+{
+    $terms = get_terms(array(
+        'taxonomy' => 'award_category',
+        'hide_empty' => true,
+        'orderby' => 'name',
+        'order' => 'ASC',
+    ));
+
+    $category_data = array();
+    if (!is_wp_error($terms) && !empty($terms)) {
+        foreach ($terms as $term) {
+            $category_data[] = array(
+                'id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug
+            );
+        }
+    }
+
+    return $category_data;
+}
+
+/**
  * CTS Awards Search Form Shortcode
  * 
- * Usage: [cts-awards form="true" year="all" post_id=""]
+ * Usage: [cts-awards form="true" year="all" post_id="" category=""]
  * 
  * @param array $atts Shortcode attributes
  *   - form: true/false - Show form (true by default)
  *   - year: all by default, or specific year
  *   - post_id: none by default, or specific post ID to filter by
+ *   - category: none by default, or specific category slug/ID to filter by
  */
 function cts_awards_shortcode($atts)
 {
@@ -116,7 +145,8 @@ function cts_awards_shortcode($atts)
         array(
             'form' => 'true',
             'year' => 'all',
-            'post_id' => ''
+            'post_id' => '',
+            'category' => ''
         ),
         $atts,
         'cts-awards'
@@ -138,6 +168,12 @@ function cts_awards_shortcode($atts)
         $post_id = !empty($atts['post_id']) ? intval($atts['post_id']) : 0;
     }
 
+    if (isset($_GET['category']) && !empty($_GET['category'])) {
+        $category = sanitize_text_field($_GET['category']);
+    } else {
+        $category = sanitize_text_field($atts['category']);
+    }
+
     // Start building output
     $output = '';
 
@@ -147,7 +183,8 @@ function cts_awards_shortcode($atts)
         $output .= '<form id="cts-awards-search" method="get" 
                         data-api-url="' . esc_url(rest_url('cts-awards/v1/awards')) . '"
                         data-current-year="' . esc_attr($year) . '"
-                        data-current-post-id="' . esc_attr($post_id) . '">';
+                        data-current-post-id="' . esc_attr($post_id) . '"
+                        data-current-category="' . esc_attr($category) . '">';
 
         // Award dropdown
         $output .= '<div class="form-group">';
@@ -179,7 +216,20 @@ function cts_awards_shortcode($atts)
         $output .= '</select>';
         $output .= '</div>';
 
+        // Category dropdown
+        $output .= '<div class="form-group">';
+        $output .= '<label for="award-category">Filter by Category:</label>';
+        $output .= '<select id="award-category" name="category">';
+        $output .= '<option value=""' . selected($category, '', false) . '>All Categories</option>';
 
+        // Get available categories
+        $available_categories = cts_awards_get_available_categories();
+        foreach ($available_categories as $cat) {
+            $output .= '<option value="' . esc_attr($cat['slug']) . '"' . selected($category, $cat['slug'], false) . '>' . esc_html($cat['name']) . '</option>';
+        }
+
+        $output .= '</select>';
+        $output .= '</div>';
 
         // Submit button
         $output .= '<div class="form-group">';

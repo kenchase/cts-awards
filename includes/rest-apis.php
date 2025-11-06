@@ -33,6 +33,15 @@ function cts_awards_register_api()
                     return is_numeric($param) && $param >= 1900 && $param <= date('Y') + 10;
                 }
             ),
+            'category' => array(
+                'description' => 'Filter awards by award category slug or ID',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'validate_callback' => function ($param, $request, $key) {
+                    // Allow both numeric IDs and text slugs
+                    return !empty($param);
+                }
+            ),
         ),
     ));
 }
@@ -46,6 +55,7 @@ function cts_awards_get_awards($request)
     // Get parameters from request
     $post_id = $request->get_param('post_id');
     $year = $request->get_param('year');
+    $category = $request->get_param('category');
 
     // Build query args
     $query_args = array(
@@ -55,6 +65,20 @@ function cts_awards_get_awards($request)
         'orderby' => 'title',
         'order' => 'ASC',
     );
+
+    // If category is specified, add taxonomy query
+    if ($category) {
+        // Check if category is numeric (term ID) or text (slug)
+        $field = is_numeric($category) ? 'term_id' : 'slug';
+
+        $query_args['tax_query'] = array(
+            array(
+                'taxonomy' => 'award_category',
+                'field' => $field,
+                'terms' => $category,
+            ),
+        );
+    }
 
     // If post_id is specified, filter by specific post
     if ($post_id) {
@@ -105,12 +129,27 @@ function cts_awards_get_awards($request)
             continue;
         }
 
+        // Get award categories
+        $categories = get_the_terms($award->ID, 'award_category');
+        $formatted_categories = array();
+
+        if ($categories && !is_wp_error($categories)) {
+            foreach ($categories as $category) {
+                $formatted_categories[] = array(
+                    'id' => $category->term_id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                );
+            }
+        }
+
         $formatted_awards[] = array(
             'id' => $award->ID,
             'title' => $award->post_title,
             'content' => $award->post_content,
             'date' => $award->post_date,
             'permalink' => get_permalink($award->ID),
+            'categories' => $formatted_categories,
             'recipients' => $formatted_recipients,
         );
     }

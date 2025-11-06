@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function initAwardsSearchForm() {
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-select");
+	const categorySelect = document.getElementById("award-category");
 	const postIdInput = document.getElementById("award-post-id");
 	const form = document.getElementById("cts-awards-search");
 	const resetButton = document.getElementById("reset-filters");
@@ -82,10 +83,12 @@ function loadAwardsData() {
 	const urlParams = new URLSearchParams(window.location.search);
 	const currentYear = urlParams.get("year") || "all";
 	const currentPostId = urlParams.get("post_id") || "";
+	const currentCategory = urlParams.get("category") || "";
 
 	// Set form values to match URL parameters
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-select");
+	const categorySelect = document.getElementById("award-category");
 
 	if (yearSelect && currentYear !== "all") {
 		yearSelect.value = currentYear;
@@ -93,9 +96,12 @@ function loadAwardsData() {
 	if (awardSelect && currentPostId) {
 		awardSelect.value = currentPostId;
 	}
+	if (categorySelect && currentCategory) {
+		categorySelect.value = currentCategory;
+	}
 
 	// Load data with current filters
-	fetchAwardsFromAPI(apiUrl, currentYear, currentPostId);
+	fetchAwardsFromAPI(apiUrl, currentYear, currentPostId, currentCategory);
 }
 
 /**
@@ -105,16 +111,18 @@ function resetFilters(apiUrl) {
 	// Reset form fields
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-select");
+	const categorySelect = document.getElementById("award-category");
 
 	if (yearSelect) yearSelect.value = "all";
 	if (awardSelect) awardSelect.value = "";
+	if (categorySelect) categorySelect.value = "";
 
 	// Update URL without parameters
 	const currentUrl = new URL(window.location);
 	window.history.pushState({}, "", currentUrl.pathname);
 
 	// Fetch all awards (no filters)
-	fetchAwardsFromAPI(apiUrl, "all", "");
+	fetchAwardsFromAPI(apiUrl, "all", "", "");
 }
 
 /**
@@ -126,11 +134,15 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	// Get filter values
 	const year = formData.get("year") || "all";
 	const postId = formData.get("post_id") || "";
+	const category = formData.get("category") || "";
+
+	console.log("Form submission filters:", { year, postId, category });
 
 	// Update URL for bookmarkability
 	const params = new URLSearchParams();
 	if (postId) params.append("post_id", postId);
 	if (year !== "all") params.append("year", year);
+	if (category) params.append("category", category);
 
 	const currentUrl = new URL(window.location);
 	const newUrl =
@@ -139,13 +151,13 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	window.history.pushState({}, "", newUrl);
 
 	// Fetch filtered data from API
-	fetchAwardsFromAPI(apiUrl, year, postId);
+	fetchAwardsFromAPI(apiUrl, year, postId, category);
 }
 
 /**
  * Fetch awards data from REST API
  */
-function fetchAwardsFromAPI(apiUrl, year = "all", postId = "") {
+function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "") {
 	// Build API URL with parameters
 	const url = new URL(apiUrl);
 	if (year !== "all") {
@@ -154,6 +166,11 @@ function fetchAwardsFromAPI(apiUrl, year = "all", postId = "") {
 	if (postId) {
 		url.searchParams.append("post_id", postId);
 	}
+	if (category) {
+		url.searchParams.append("category", category);
+	}
+
+	console.log("API URL being called:", url.toString());
 
 	// Show loading state
 	showLoadingState();
@@ -168,9 +185,9 @@ function fetchAwardsFromAPI(apiUrl, year = "all", postId = "") {
 		})
 		.then((data) => {
 			// Update the results display
-			displayAwardsResults(data, year, postId);
+			displayAwardsResults(data, year, postId, category);
 			// Update filter info
-			updateFilterInfo(year, postId, data);
+			updateFilterInfo(year, postId, category, data);
 		})
 		.catch((error) => {
 			console.error("Error fetching awards:", error);
@@ -181,7 +198,7 @@ function fetchAwardsFromAPI(apiUrl, year = "all", postId = "") {
 /**
  * Display awards results
  */
-function displayAwardsResults(awards, year, postId) {
+function displayAwardsResults(awards, year, postId, category) {
 	const parentContainer = document.querySelector(".cts-awards-results");
 	if (!parentContainer) {
 		console.error("Results container not found");
@@ -320,9 +337,9 @@ function generateAwardCardHTML(award, year, recipients) {
 			)}</div>`;
 		}
 
-		// Abstract
+		// Abstract Title
 		if (recipient.abstract_title) {
-			html += `<div class="cts-recipient-abstract"><strong>Abstract:</strong> ${escapeHtml(
+			html += `<div class="cts-recipient-abstract"><strong>Abstract Title:</strong> ${escapeHtml(
 				recipient.abstract_title
 			)}</div>`;
 		}
@@ -338,7 +355,7 @@ function generateAwardCardHTML(award, year, recipients) {
 /**
  * Update filter information display
  */
-function updateFilterInfo(year, postId, awards) {
+function updateFilterInfo(year, postId, category, awards) {
 	const filterInfoContainer = document.querySelector(
 		".cts-awards-filters-info"
 	);
@@ -360,6 +377,19 @@ function updateFilterInfo(year, postId, awards) {
 
 	if (year !== "all") {
 		filterInfo.push(`Year: ${year}`);
+	}
+
+	if (category) {
+		// Find category name from results (if available in award data)
+		const categorySelect = document.getElementById("award-category");
+		if (categorySelect) {
+			const selectedOption = categorySelect.querySelector(
+				`option[value="${category}"]`
+			);
+			if (selectedOption) {
+				filterInfo.push(`Category: ${selectedOption.textContent}`);
+			}
+		}
 	}
 
 	if (filterInfo.length > 0) {

@@ -174,6 +174,12 @@ function cts_awards_shortcode($atts)
         $category = sanitize_text_field($atts['category']);
     }
 
+    if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $search = sanitize_text_field($_GET['search']);
+    } else {
+        $search = '';
+    }
+
     // Start building output
     $output = '';
 
@@ -184,7 +190,18 @@ function cts_awards_shortcode($atts)
                         data-api-url="' . esc_url(rest_url('cts-awards/v1/awards')) . '"
                         data-current-year="' . esc_attr($year) . '"
                         data-current-post-id="' . esc_attr($post_id) . '"
-                        data-current-category="' . esc_attr($category) . '">';
+                        data-current-category="' . esc_attr($category) . '"
+                        data-current-search="' . esc_attr($search) . '">';
+
+        // Search input field
+        $output .= '<div class="form-group">';
+        $output .= '<label for="award-search">Search Awards:</label>';
+        $output .= '<input type="text" id="award-search" name="search" 
+                        value="' . esc_attr($search) . '" 
+                        placeholder="Search by name, organization, title, or keywords..." 
+                        class="form-control" />';
+        $output .= '<small class="form-text">Search across award titles and recipient information</small>';
+        $output .= '</div>';
 
         // Award dropdown
         $output .= '<div class="form-group">';

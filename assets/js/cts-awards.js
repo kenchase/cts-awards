@@ -16,6 +16,7 @@ function initAwardsSearchForm() {
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-select");
 	const categorySelect = document.getElementById("award-category");
+	const searchInput = document.getElementById("award-search");
 	const postIdInput = document.getElementById("award-post-id");
 	const form = document.getElementById("cts-awards-search");
 	const resetButton = document.getElementById("reset-filters");
@@ -84,11 +85,13 @@ function loadAwardsData() {
 	const currentYear = urlParams.get("year") || "all";
 	const currentPostId = urlParams.get("post_id") || "";
 	const currentCategory = urlParams.get("category") || "";
+	const currentSearch = urlParams.get("search") || "";
 
 	// Set form values to match URL parameters
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-select");
 	const categorySelect = document.getElementById("award-category");
+	const searchInput = document.getElementById("award-search");
 
 	if (yearSelect && currentYear !== "all") {
 		yearSelect.value = currentYear;
@@ -99,9 +102,12 @@ function loadAwardsData() {
 	if (categorySelect && currentCategory) {
 		categorySelect.value = currentCategory;
 	}
+	if (searchInput && currentSearch) {
+		searchInput.value = currentSearch;
+	}
 
 	// Load data with current filters
-	fetchAwardsFromAPI(apiUrl, currentYear, currentPostId, currentCategory);
+	fetchAwardsFromAPI(apiUrl, currentYear, currentPostId, currentCategory, currentSearch);
 }
 
 /**
@@ -112,17 +118,19 @@ function resetFilters(apiUrl) {
 	const yearSelect = document.getElementById("award-year");
 	const awardSelect = document.getElementById("award-select");
 	const categorySelect = document.getElementById("award-category");
+	const searchInput = document.getElementById("award-search");
 
 	if (yearSelect) yearSelect.value = "all";
 	if (awardSelect) awardSelect.value = "";
 	if (categorySelect) categorySelect.value = "";
+	if (searchInput) searchInput.value = "";
 
 	// Update URL without parameters
 	const currentUrl = new URL(window.location);
 	window.history.pushState({}, "", currentUrl.pathname);
 
 	// Fetch all awards (no filters)
-	fetchAwardsFromAPI(apiUrl, "all", "", "");
+	fetchAwardsFromAPI(apiUrl, "all", "", "", "");
 }
 
 /**
@@ -135,14 +143,16 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	const year = formData.get("year") || "all";
 	const postId = formData.get("post_id") || "";
 	const category = formData.get("category") || "";
+	const search = formData.get("search") || "";
 
-	console.log("Form submission filters:", { year, postId, category });
+	console.log("Form submission filters:", { year, postId, category, search });
 
 	// Update URL for bookmarkability
 	const params = new URLSearchParams();
 	if (postId) params.append("post_id", postId);
 	if (year !== "all") params.append("year", year);
 	if (category) params.append("category", category);
+	if (search) params.append("search", search);
 
 	const currentUrl = new URL(window.location);
 	const newUrl =
@@ -151,13 +161,13 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	window.history.pushState({}, "", newUrl);
 
 	// Fetch filtered data from API
-	fetchAwardsFromAPI(apiUrl, year, postId, category);
+	fetchAwardsFromAPI(apiUrl, year, postId, category, search);
 }
 
 /**
  * Fetch awards data from REST API
  */
-function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "") {
+function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "", search = "") {
 	// Build API URL with parameters
 	const url = new URL(apiUrl);
 	if (year !== "all") {
@@ -168,6 +178,9 @@ function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "") {
 	}
 	if (category) {
 		url.searchParams.append("category", category);
+	}
+	if (search) {
+		url.searchParams.append("search", search);
 	}
 
 	console.log("API URL being called:", url.toString());
@@ -185,9 +198,9 @@ function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "") {
 		})
 		.then((data) => {
 			// Update the results display
-			displayAwardsResults(data, year, postId, category);
+			displayAwardsResults(data, year, postId, category, search);
 			// Update filter info
-			updateFilterInfo(year, postId, category, data);
+			updateFilterInfo(year, postId, category, search, data);
 		})
 		.catch((error) => {
 			console.error("Error fetching awards:", error);
@@ -198,7 +211,7 @@ function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "") {
 /**
  * Display awards results
  */
-function displayAwardsResults(awards, year, postId, category) {
+function displayAwardsResults(awards, year, postId, category, search = "") {
 	const parentContainer = document.querySelector(".cts-awards-results");
 	if (!parentContainer) {
 		console.error("Results container not found");
@@ -355,7 +368,7 @@ function generateAwardCardHTML(award, year, recipients) {
 /**
  * Update filter information display
  */
-function updateFilterInfo(year, postId, category, awards) {
+function updateFilterInfo(year, postId, category, search, awards) {
 	const filterInfoContainer = document.querySelector(
 		".cts-awards-filters-info"
 	);
@@ -390,6 +403,10 @@ function updateFilterInfo(year, postId, category, awards) {
 				filterInfo.push(`Category: ${selectedOption.textContent}`);
 			}
 		}
+	}
+
+	if (search) {
+		filterInfo.push(`Search: "${search}"`);
 	}
 
 	if (filterInfo.length > 0) {

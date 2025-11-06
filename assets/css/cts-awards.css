@@ -93,12 +93,26 @@
 	color: var(--text-slate-900);
 }
 
-.cts-awards-search-form select {
+.cts-awards-search-form select,
+.cts-awards-search-form input[type="text"] {
 	width: 100%;
 	padding: var(--space-2) var(--space-3);
 	border: 1px solid var(--border-gray-300);
 	border-radius: var(--rounded);
 	/* font-size: var(--text-base); */
+}
+
+.cts-awards-search-form input[type="text"]:focus {
+	outline: none;
+	border-color: var(--border-blue-600);
+	box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.cts-awards-search-form .form-text {
+	font-size: var(--text-xs);
+	color: var(--text-slate-500);
+	margin-top: var(--space-1);
+	font-style: italic;
 }
 
 .cts-awards-search-form select:disabled,

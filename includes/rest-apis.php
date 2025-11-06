@@ -42,10 +42,137 @@ function cts_awards_register_api()
                     return !empty($param);
                 }
             ),
+            'search' => array(
+                'description' => 'Search in award titles and recipient fields (first name, last name, organization, title, abstract title)',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'validate_callback' => function ($param, $request, $key) {
+                    return !empty(trim($param));
+                }
+            ),
         ),
     ));
 }
 add_action('rest_api_init', 'cts_awards_register_api');
+
+/**
+ * Search awards by title and custom fields
+ * 
+ * @param string $search_term The search term
+ * @param string $category Optional category filter
+ * @param int $post_id Optional specific post ID
+ * @return array Array of matching post objects
+ */
+function cts_awards_search_posts_and_fields($search_term, $category = null, $post_id = null)
+{
+    global $wpdb;
+
+    $search_term = trim($search_term);
+    $post_ids = array();
+
+    // Search in post titles first
+    $title_query_args = array(
+        'post_type' => 'awards',
+        'post_status' => 'publish',
+        's' => $search_term,
+        'fields' => 'ids',
+        'numberposts' => -1,
+    );
+
+    // Apply category filter if specified
+    if ($category) {
+        $field = is_numeric($category) ? 'term_id' : 'slug';
+        $title_query_args['tax_query'] = array(
+            array(
+                'taxonomy' => 'award_category',
+                'field' => $field,
+                'terms' => $category,
+            ),
+        );
+    }
+
+    // Apply post_id filter if specified
+    if ($post_id) {
+        $title_query_args['p'] = $post_id;
+    }
+
+    $title_matches = get_posts($title_query_args);
+    $post_ids = array_merge($post_ids, $title_matches);
+
+    // Search in ACF custom fields
+    if (function_exists('get_field')) {
+        // Get all awards posts to search through their custom fields
+        $all_awards_args = array(
+            'post_type' => 'awards',
+            'post_status' => 'publish',
+            'numberposts' => -1,
+            'fields' => 'ids',
+        );
+
+        // Apply category filter if specified
+        if ($category) {
+            $field = is_numeric($category) ? 'term_id' : 'slug';
+            $all_awards_args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'award_category',
+                    'field' => $field,
+                    'terms' => $category,
+                ),
+            );
+        }
+
+        // Apply post_id filter if specified
+        if ($post_id) {
+            $all_awards_args['p'] = $post_id;
+        }
+
+        $all_awards = get_posts($all_awards_args);
+
+        foreach ($all_awards as $award_id) {
+            $recipients = get_field('cts_awd_rcpts', $award_id);
+
+            if ($recipients) {
+                foreach ($recipients as $recipient) {
+                    $searchable_fields = array(
+                        isset($recipient['cts_awd_rcpt_fname']) ? $recipient['cts_awd_rcpt_fname'] : '',
+                        isset($recipient['cts_awd_rcpt_lname']) ? $recipient['cts_awd_rcpt_lname'] : '',
+                        isset($recipient['cts_awd_rcpt_org']) ? $recipient['cts_awd_rcpt_org'] : '',
+                        isset($recipient['cts_awd_rcpt_title']) ? $recipient['cts_awd_rcpt_title'] : '',
+                        isset($recipient['cts_awd_rcpt_abstr_title']) ? $recipient['cts_awd_rcpt_abstr_title'] : '',
+                    );
+
+                    foreach ($searchable_fields as $field_value) {
+                        if (!empty($field_value) && stripos($field_value, $search_term) !== false) {
+                            if (!in_array($award_id, $post_ids)) {
+                                $post_ids[] = $award_id;
+                            }
+                            break 2; // Break out of both loops once we find a match for this post
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Remove duplicates and get full post objects
+    $post_ids = array_unique($post_ids);
+
+    if (empty($post_ids)) {
+        return array();
+    }
+
+    // Get the full post objects for matching IDs
+    $final_query_args = array(
+        'post_type' => 'awards',
+        'post_status' => 'publish',
+        'post__in' => $post_ids,
+        'numberposts' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+    );
+
+    return get_posts($final_query_args);
+}
 
 /**
  * Get all awards
@@ -56,37 +183,43 @@ function cts_awards_get_awards($request)
     $post_id = $request->get_param('post_id');
     $year = $request->get_param('year');
     $category = $request->get_param('category');
+    $search = $request->get_param('search');
 
-    // Build query args
-    $query_args = array(
-        'post_type' => 'awards',
-        'post_status' => 'publish',
-        'numberposts' => -1,
-        'orderby' => 'title',
-        'order' => 'ASC',
-    );
-
-    // If category is specified, add taxonomy query
-    if ($category) {
-        // Check if category is numeric (term ID) or text (slug)
-        $field = is_numeric($category) ? 'term_id' : 'slug';
-
-        $query_args['tax_query'] = array(
-            array(
-                'taxonomy' => 'award_category',
-                'field' => $field,
-                'terms' => $category,
-            ),
+    // If search is specified, handle search logic
+    if ($search) {
+        $awards = cts_awards_search_posts_and_fields($search, $category, $post_id);
+    } else {
+        // Build standard query args for non-search requests
+        $query_args = array(
+            'post_type' => 'awards',
+            'post_status' => 'publish',
+            'numberposts' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
         );
-    }
 
-    // If post_id is specified, filter by specific post
-    if ($post_id) {
-        $query_args['p'] = $post_id;
-        $query_args['numberposts'] = 1;
-    }
+        // If category is specified, add taxonomy query
+        if ($category) {
+            // Check if category is numeric (term ID) or text (slug)
+            $field = is_numeric($category) ? 'term_id' : 'slug';
 
-    $awards = get_posts($query_args);
+            $query_args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'award_category',
+                    'field' => $field,
+                    'terms' => $category,
+                ),
+            );
+        }
+
+        // If post_id is specified, filter by specific post
+        if ($post_id) {
+            $query_args['p'] = $post_id;
+            $query_args['numberposts'] = 1;
+        }
+
+        $awards = get_posts($query_args);
+    }
 
     $formatted_awards = array();
 

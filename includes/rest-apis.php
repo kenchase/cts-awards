@@ -188,7 +188,10 @@ function cts_awards_get_awards($request)
     // If search is specified, handle search logic
     if ($search) {
         $awards = cts_awards_search_posts_and_fields($search, $category, $post_id);
+        // Store the search term to use later for recipient filtering
+        $search_term_for_filtering = $search;
     } else {
+        $search_term_for_filtering = null;
         // Build standard query args for non-search requests
         $query_args = array(
             'post_type' => 'awards',
@@ -233,12 +236,44 @@ function cts_awards_get_awards($request)
             $recipients = get_field('cts_awd_rcpts', $award->ID);
         }
 
+        // Check if award title matches search term (if search is active)
+        $award_title_matches = false;
+        if ($search_term_for_filtering) {
+            $award_title_matches = stripos($award->post_title, $search_term_for_filtering) !== false;
+        }
+
         if ($recipients) {
             foreach ($recipients as $recipient) {
                 // If year parameter is specified, filter recipients by year
                 if ($year && isset($recipient['cts_awd_rcpt_year']) && intval($recipient['cts_awd_rcpt_year']) != intval($year)) {
                     continue;
                 }
+
+                // Handle search filtering based on award title match
+                if ($search_term_for_filtering && !$award_title_matches) {
+                    // Award title doesn't match, so check recipient fields
+                    $searchable_fields = array(
+                        isset($recipient['cts_awd_rcpt_fname']) ? $recipient['cts_awd_rcpt_fname'] : '',
+                        isset($recipient['cts_awd_rcpt_lname']) ? $recipient['cts_awd_rcpt_lname'] : '',
+                        isset($recipient['cts_awd_rcpt_org']) ? $recipient['cts_awd_rcpt_org'] : '',
+                        isset($recipient['cts_awd_rcpt_title']) ? $recipient['cts_awd_rcpt_title'] : '',
+                        isset($recipient['cts_awd_rcpt_abstr_title']) ? $recipient['cts_awd_rcpt_abstr_title'] : '',
+                    );
+
+                    $recipient_matches = false;
+                    foreach ($searchable_fields as $field_value) {
+                        if (!empty($field_value) && stripos($field_value, $search_term_for_filtering) !== false) {
+                            $recipient_matches = true;
+                            break;
+                        }
+                    }
+
+                    // If this recipient doesn't match the search term, skip it
+                    if (!$recipient_matches) {
+                        continue;
+                    }
+                }
+                // If award title matches, include all recipients (no additional filtering)
 
                 $photo_url = null;
                 if (!empty($recipient['imagects_awd_rcpt_photo'])) {
@@ -260,6 +295,16 @@ function cts_awards_get_awards($request)
         // If year filtering is applied and no recipients match, skip this award
         if ($year && empty($formatted_recipients)) {
             continue;
+        }
+
+        // If search filtering is applied and no recipients remain after filtering
+        if ($search_term_for_filtering && empty($formatted_recipients)) {
+            // Only skip this award if the title doesn't match either
+            if (!$award_title_matches) {
+                continue;
+            }
+            // If title matches but no recipients remain (due to year/other filters), 
+            // still show the award with empty recipients
         }
 
         // Get award categories

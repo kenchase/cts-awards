@@ -19,10 +19,13 @@ function cts_awards_register_api()
         'args' => array(
             'post_id' => array(
                 'description' => 'Filter awards by specific post ID',
-                'type' => 'integer',
-                'sanitize_callback' => 'absint',
+                'type' => ['integer', 'string'],
+                'sanitize_callback' => function($param) {
+                    return empty($param) ? null : absint($param);
+                },
                 'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param) && $param > 0;
+                    // Allow empty string/null (no filter) or valid positive integer
+                    return empty($param) || (is_numeric($param) && intval($param) > 0);
                 }
             ),
             'year' => array(
@@ -357,12 +360,12 @@ function cts_awards_get_awards($request)
 
     // Since awards can have multiple recipient years, we need to create year-based cards for pagination
     $award_year_cards = array();
-    
+
     foreach ($formatted_awards as $award) {
         if (!empty($award['recipients'])) {
             // Group recipients by year
             $recipients_by_year = array();
-            
+
             foreach ($award['recipients'] as $recipient) {
                 $recipient_year = !empty($recipient['year']) ? $recipient['year'] : 0;
                 if (!isset($recipients_by_year[$recipient_year])) {
@@ -370,7 +373,7 @@ function cts_awards_get_awards($request)
                 }
                 $recipients_by_year[$recipient_year][] = $recipient;
             }
-            
+
             // Create cards for each year
             foreach ($recipients_by_year as $award_year => $year_recipients) {
                 $award_year_cards[] = array(
@@ -390,20 +393,20 @@ function cts_awards_get_awards($request)
             );
         }
     }
-    
+
     // Sort cards by year (descending) then by award title
     usort($award_year_cards, function ($a, $b) {
         $year_comparison = $b['year'] - $a['year'];
         if ($year_comparison !== 0) return $year_comparison;
         return strcmp($a['award']['title'], $b['award']['title']);
     });
-    
+
     // Calculate pagination
     $total_cards = count($award_year_cards);
     $total_pages = ceil($total_cards / $per_page);
     $offset = ($page - 1) * $per_page;
     $paginated_cards = array_slice($award_year_cards, $offset, $per_page);
-    
+
     // Prepare response with pagination metadata
     $response_data = array(
         'cards' => $paginated_cards,

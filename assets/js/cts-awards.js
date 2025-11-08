@@ -227,6 +227,7 @@ function fetchAwardsFromAPI(
 	url.searchParams.append("per_page", 12);
 
 	console.log("API URL being called:", url.toString());
+	console.log("Filter parameters:", { year, postId, category, search, page });
 
 	// Show loading state only if not appending
 	if (!append) {
@@ -244,6 +245,7 @@ function fetchAwardsFromAPI(
 			return response.json();
 		})
 		.then((data) => {
+			console.log("API Response:", data);
 			// Update the results display
 			displayAwardsResults(data, year, postId, category, search, append);
 			// Update filter info only for initial load

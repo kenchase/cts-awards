@@ -1,0 +1,193 @@
+# CTS Awards Plugin Translation Template
+# Copyright (C) 2025 Dalen Design
+# This file is distributed under the same license as the CTS Awards plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: CTS Awards 1.0.0\n"
+"Report-Msgid-Bugs-To: https://www.dalendesign.com/\n"
+"POT-Creation-Date: 2025-11-08 15:49+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Manual\n"
+
+#: cts-awards.php:35
+msgid "CTS Awards"
+msgstr ""
+
+#: cts-awards.php:36
+msgid "This plugin requires Advanced Custom Fields to be installed and activated."
+msgstr ""
+
+#: includes/custom-posts.php:16
+msgid "Awards"
+msgstr ""
+
+#: includes/custom-posts.php:17
+msgid "Award"
+msgstr ""
+
+#: includes/custom-posts.php:18
+msgid "Add Award"
+msgstr ""
+
+#: includes/custom-posts.php:19
+msgid "Add New Award"
+msgstr ""
+
+#: includes/custom-posts.php:20
+msgid "Edit Award"
+msgstr ""
+
+#: includes/custom-posts.php:21
+msgid "New Award"
+msgstr ""
+
+#: includes/custom-posts.php:22
+msgid "View Award"
+msgstr ""
+
+#: includes/custom-posts.php:23
+msgid "View Awards"
+msgstr ""
+
+#: includes/custom-posts.php:24
+msgid "Search Awards"
+msgstr ""
+
+#: includes/custom-posts.php:25
+msgid "No Award found"
+msgstr ""
+
+#: includes/custom-posts.php:26
+msgid "No Award found in Trash"
+msgstr ""
+
+#: includes/custom-posts.php:27
+msgid "All Awards"
+msgstr ""
+
+#: includes/custom-posts.php:28
+msgid "Award Archives"
+msgstr ""
+
+#: includes/custom-posts.php:29
+msgid "Award Attributes"
+msgstr ""
+
+#: includes/custom-taxonomies.php:16
+msgid "Award Categories"
+msgstr ""
+
+#: includes/custom-taxonomies.php:17
+msgid "Award Category"
+msgstr ""
+
+#: includes/custom-taxonomies.php:18
+msgid "Search Award Categories"
+msgstr ""
+
+#: includes/custom-taxonomies.php:19
+msgid "All Award Categories"
+msgstr ""
+
+#: includes/custom-taxonomies.php:20
+msgid "Parent Award Category"
+msgstr ""
+
+#: includes/custom-taxonomies.php:21
+msgid "Parent Award Category:"
+msgstr ""
+
+#: includes/custom-taxonomies.php:22
+msgid "Edit Award Category"
+msgstr ""
+
+#: includes/custom-taxonomies.php:23
+msgid "Update Award Category"
+msgstr ""
+
+#: includes/custom-taxonomies.php:24
+msgid "Add New Award Category"
+msgstr ""
+
+#: includes/custom-taxonomies.php:25
+msgid "New Award Category Name"
+msgstr ""
+
+#: includes/shortcodes.php:36
+msgid "Loading awards..."
+msgstr ""
+
+#: includes/shortcodes.php:37
+msgid "Loading more awards..."
+msgstr ""
+
+#: includes/shortcodes.php:38
+msgid "No awards found matching your criteria."
+msgstr ""
+
+#: includes/shortcodes.php:39
+msgid "Error loading awards. Please try again."
+msgstr ""
+
+#: includes/shortcodes.php:40
+msgid "Scroll down to load more awards..."
+msgstr ""
+
+#: includes/shortcodes.php:41
+msgid "Show Filters"
+msgstr ""
+
+#: includes/shortcodes.php:42
+msgid "Hide Filters"
+msgstr ""
+
+#: includes/shortcodes.php:65
+msgid "CTS Awards: ACF plugin is required but not available"
+msgstr ""
+
+#: includes/shortcodes.php:191
+msgid "Search Awards:"
+msgstr ""
+
+#: includes/shortcodes.php:194
+msgid "Search by name, organization, title, or keywords..."
+msgstr ""
+
+#: includes/shortcodes.php:205
+msgid "Filter by Award:"
+msgstr ""
+
+#: includes/shortcodes.php:207
+msgid "All Awards"
+msgstr ""
+
+#: includes/shortcodes.php:217
+msgid "Filter by Year:"
+msgstr ""
+
+#: includes/shortcodes.php:219
+msgid "All Years"
+msgstr ""
+
+#: includes/shortcodes.php:229
+msgid "Filter by Category:"
+msgstr ""
+
+#: includes/shortcodes.php:231
+msgid "All Categories"
+msgstr ""
+
+#: includes/shortcodes.php:243
+msgid "Search Awards"
+msgstr ""
+
+#: includes/shortcodes.php:244
+msgid "Reset Filters"
+msgstr ""

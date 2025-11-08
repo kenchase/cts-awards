@@ -1,0 +1,141 @@
+# Spanish (Spain) translation for CTS Awards Plugin
+# Copyright (C) 2025 Dalen Design
+msgid ""
+msgstr ""
+"Project-Id-Version: CTS Awards 1.0.0\n"
+"Report-Msgid-Bugs-To: https://www.dalendesign.com/\n"
+"POT-Creation-Date: 2025-11-08 15:49+0000\n"
+"PO-Revision-Date: 2025-11-08 15:49+0000\n"
+"Last-Translator: Test Translator\n"
+"Language-Team: Spanish\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "CTS Awards"
+msgstr "Premios CTS"
+
+msgid "This plugin requires Advanced Custom Fields to be installed and activated."
+msgstr "Este plugin requiere que Advanced Custom Fields esté instalado y activado."
+
+msgid "Awards"
+msgstr "Premios"
+
+msgid "Award"
+msgstr "Premio"
+
+msgid "Add Award"
+msgstr "Añadir Premio"
+
+msgid "Add New Award"
+msgstr "Añadir Nuevo Premio"
+
+msgid "Edit Award"
+msgstr "Editar Premio"
+
+msgid "New Award"
+msgstr "Nuevo Premio"
+
+msgid "View Award"
+msgstr "Ver Premio"
+
+msgid "View Awards"
+msgstr "Ver Premios"
+
+msgid "Search Awards"
+msgstr "Buscar Premios"
+
+msgid "No Award found"
+msgstr "No se encontró Premio"
+
+msgid "No Award found in Trash"
+msgstr "No se encontró Premio en la Papelera"
+
+msgid "All Awards"
+msgstr "Todos los Premios"
+
+msgid "Award Archives"
+msgstr "Archivos de Premios"
+
+msgid "Award Attributes"
+msgstr "Atributos del Premio"
+
+msgid "Award Categories"
+msgstr "Categorías de Premios"
+
+msgid "Award Category"
+msgstr "Categoría de Premio"
+
+msgid "Search Award Categories"
+msgstr "Buscar Categorías de Premios"
+
+msgid "All Award Categories"
+msgstr "Todas las Categorías de Premios"
+
+msgid "Parent Award Category"
+msgstr "Categoría de Premio Padre"
+
+msgid "Parent Award Category:"
+msgstr "Categoría de Premio Padre:"
+
+msgid "Edit Award Category"
+msgstr "Editar Categoría de Premio"
+
+msgid "Update Award Category"
+msgstr "Actualizar Categoría de Premio"
+
+msgid "Add New Award Category"
+msgstr "Añadir Nueva Categoría de Premio"
+
+msgid "New Award Category Name"
+msgstr "Nuevo Nombre de Categoría de Premio"
+
+msgid "Loading awards..."
+msgstr "Cargando premios..."
+
+msgid "Loading more awards..."
+msgstr "Cargando más premios..."
+
+msgid "No awards found matching your criteria."
+msgstr "No se encontraron premios que coincidan con sus criterios."
+
+msgid "Error loading awards. Please try again."
+msgstr "Error al cargar premios. Por favor, inténtelo de nuevo."
+
+msgid "Scroll down to load more awards..."
+msgstr "Desplácese hacia abajo para cargar más premios..."
+
+msgid "Show Filters"
+msgstr "Mostrar Filtros"
+
+msgid "Hide Filters"
+msgstr "Ocultar Filtros"
+
+msgid "CTS Awards: ACF plugin is required but not available"
+msgstr "Premios CTS: El plugin ACF es requerido pero no está disponible"
+
+msgid "Search Awards:"
+msgstr "Buscar Premios:"
+
+msgid "Search by name, organization, title, or keywords..."
+msgstr "Buscar por nombre, organización, título o palabras clave..."
+
+msgid "Filter by Award:"
+msgstr "Filtrar por Premio:"
+
+msgid "Filter by Year:"
+msgstr "Filtrar por Año:"
+
+msgid "All Years"
+msgstr "Todos los Años"
+
+msgid "Filter by Category:"
+msgstr "Filtrar por Categoría:"
+
+msgid "All Categories"
+msgstr "Todas las Categorías"
+
+msgid "Reset Filters"
+msgstr "Restablecer Filtros"

@@ -21,6 +21,20 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Load plugin text domain for translations
+ * 
+ * @since 1.0.0
+ */
+function cts_awards_load_textdomain() {
+    load_plugin_textdomain(
+        'cts-awards',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages/'
+    );
+}
+add_action('plugins_loaded', 'cts_awards_load_textdomain');
+
+/**
  * Check if Advanced Custom Fields is active
  * 
  * @since 1.0.0
@@ -40,7 +54,11 @@ function cts_awards_acf_missing_notice()
 {
     if (!cts_awards_is_acf_active()) {
         echo '<div class="notice notice-error"><p>';
-        echo '<strong>CTS Awards:</strong> This plugin requires Advanced Custom Fields to be installed and activated.';
+        printf(
+            '<strong>%s:</strong> %s',
+            esc_html__('CTS Awards', 'cts-awards'),
+            esc_html__('This plugin requires Advanced Custom Fields to be installed and activated.', 'cts-awards')
+        );
         echo '</p></div>';
     }
 }

@@ -309,7 +309,7 @@ function displayAwardsResults(
 		const noResultsDiv = document.createElement("div");
 		noResultsDiv.className = "cts-no-awards";
 		noResultsDiv.innerHTML =
-			"<p>No awards found matching your criteria.</p>";
+			`<p>${ctsAwardsAjax.strings.noResults}</p>`;
 		parentContainer.appendChild(noResultsDiv);
 		return;
 	}
@@ -488,7 +488,7 @@ function showLoadingState() {
 		if (!resultsContainer.querySelector(".cts-loading")) {
 			const loadingDiv = document.createElement("div");
 			loadingDiv.className = "cts-loading";
-			loadingDiv.innerHTML = "<p>Loading awards...</p>";
+			loadingDiv.innerHTML = `<p>${ctsAwardsAjax.strings.loading}</p>`;
 			resultsContainer.appendChild(loadingDiv);
 		}
 	}
@@ -509,7 +509,7 @@ function showErrorState() {
 		// Add error message
 		const errorDiv = document.createElement("div");
 		errorDiv.className = "cts-error";
-		errorDiv.innerHTML = "<p>Error loading awards. Please try again.</p>";
+		errorDiv.innerHTML = `<p>${ctsAwardsAjax.strings.error}</p>`;
 		resultsContainer.appendChild(errorDiv);
 	}
 }
@@ -559,13 +559,13 @@ function initCollapsibleFilters() {
 			toggleButton.setAttribute("aria-expanded", "false");
 			filtersContainer.style.display = "none";
 			filtersContainer.classList.remove("show");
-			toggleText.textContent = "Show Filters";
+			toggleText.textContent = ctsAwardsAjax.strings.showFilters;
 		} else {
 			// Expand filters
 			toggleButton.setAttribute("aria-expanded", "true");
 			filtersContainer.style.display = "block";
 			filtersContainer.classList.add("show");
-			toggleText.textContent = "Hide Filters";
+			toggleText.textContent = ctsAwardsAjax.strings.hideFilters;
 		}
 	});
 }
@@ -632,7 +632,7 @@ function showLoadMoreState() {
 
 	const loadMoreDiv = document.createElement("div");
 	loadMoreDiv.className = "cts-load-more";
-	loadMoreDiv.innerHTML = "<p>Loading more awards...</p>";
+	loadMoreDiv.innerHTML = `<p>${ctsAwardsAjax.strings.loadingMore}</p>`;
 	parentContainer.appendChild(loadMoreDiv);
 }
 
@@ -667,7 +667,7 @@ function updateScrollIndicator() {
 	if (hasNextPage) {
 		const indicatorDiv = document.createElement("div");
 		indicatorDiv.className = "cts-scroll-indicator";
-		indicatorDiv.innerHTML = "<p>Scroll down to load more awards...</p>";
+		indicatorDiv.innerHTML = `<p>${ctsAwardsAjax.strings.scrollToLoad}</p>`;
 		parentContainer.appendChild(indicatorDiv);
 	}
 }

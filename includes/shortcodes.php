@@ -34,10 +34,19 @@ function cts_awards_enqueue_assets()
             true
         );
 
-        // Localize script with AJAX data
+        // Localize script with AJAX data and translatable strings
         wp_localize_script('cts-awards-script', 'ctsAwardsAjax', array(
             'restUrl' => rest_url('cts-awards/v1/awards'),
-            'nonce' => wp_create_nonce('wp_rest')
+            'nonce' => wp_create_nonce('wp_rest'),
+            'strings' => array(
+                'loading' => __('Loading awards...', 'cts-awards'),
+                'loadingMore' => __('Loading more awards...', 'cts-awards'),
+                'noResults' => __('No awards found matching your criteria.', 'cts-awards'),
+                'error' => __('Error loading awards. Please try again.', 'cts-awards'),
+                'scrollToLoad' => __('Scroll down to load more awards...', 'cts-awards'),
+                'showFilters' => __('Show Filters', 'cts-awards'),
+                'hideFilters' => __('Hide Filters', 'cts-awards'),
+            )
         ));
     }
 }
@@ -54,7 +63,7 @@ function cts_awards_get_available_years()
 
     // Check if ACF is available
     if (!function_exists('get_field')) {
-        error_log('CTS Awards: ACF plugin is required but not available');
+        error_log(__('CTS Awards: ACF plugin is required but not available', 'cts-awards'));
         return $years;
     }
 
@@ -206,15 +215,15 @@ function cts_awards_shortcode($atts)
 
         // Search input field
         $output .= '<div class="form-group form-group-search">';
-        $output .= '<label for="award-search" class="cts-awards-visually-hidden">Search Awards:</label>';
+        $output .= '<label for="award-search" class="cts-awards-visually-hidden">' . esc_html__('Search Awards:', 'cts-awards') . '</label>';
         $output .= '<input type="text" id="award-search" name="search" 
                         value="' . esc_attr($search) . '" 
-                        placeholder="Search by name, organization, title, or keywords..." 
+                        placeholder="' . esc_attr__('Search by name, organization, title, or keywords...', 'cts-awards') . '" 
                         class="form-control" />';
         // Toggle button for filters
         $output .= '<button type="button" id="toggle-filters" class="btn btn-toggle" aria-expanded="false">';
         $output .= '<span class="dashicons dashicons-arrow-down-alt2"></span>';
-        $output .= '<span class="toggle-text">Show Filters</span>';
+        $output .= '<span class="toggle-text">' . esc_html__('Show Filters', 'cts-awards') . '</span>';
         $output .= '</button>';
         $output .= '</div>';
 
@@ -224,9 +233,9 @@ function cts_awards_shortcode($atts)
 
         // Award dropdown
         $output .= '<div class="form-group">';
-        $output .= '<label for="award-select">Filter by Award:</label>';
+        $output .= '<label for="award-select">' . esc_html__('Filter by Award:', 'cts-awards') . '</label>';
         $output .= '<select id="award-select" name="post_id">';
-        $output .= '<option value=""' . selected($post_id, '', false) . '>All Awards</option>';
+        $output .= '<option value=""' . selected($post_id, '', false) . '>' . esc_html__('All Awards', 'cts-awards') . '</option>';
 
         // Get available awards
         $available_awards = cts_awards_get_available_awards();
@@ -239,9 +248,9 @@ function cts_awards_shortcode($atts)
 
         // Year dropdown
         $output .= '<div class="form-group">';
-        $output .= '<label for="award-year">Filter by Year:</label>';
+        $output .= '<label for="award-year">' . esc_html__('Filter by Year:', 'cts-awards') . '</label>';
         $output .= '<select id="award-year" name="year">';
-        $output .= '<option value="all"' . selected($year, 'all', false) . '>All Years</option>';
+        $output .= '<option value="all"' . selected($year, 'all', false) . '>' . esc_html__('All Years', 'cts-awards') . '</option>';
 
         // Get available years from awards
         $available_years = cts_awards_get_available_years();
@@ -254,9 +263,9 @@ function cts_awards_shortcode($atts)
 
         // Category dropdown
         $output .= '<div class="form-group">';
-        $output .= '<label for="award-category">Filter by Category:</label>';
+        $output .= '<label for="award-category">' . esc_html__('Filter by Category:', 'cts-awards') . '</label>';
         $output .= '<select id="award-category" name="category">';
-        $output .= '<option value=""' . selected($category, '', false) . '>All Categories</option>';
+        $output .= '<option value=""' . selected($category, '', false) . '>' . esc_html__('All Categories', 'cts-awards') . '</option>';
 
         // Get available categories
         $available_categories = cts_awards_get_available_categories();
@@ -272,8 +281,8 @@ function cts_awards_shortcode($atts)
 
         // Submit button
         $output .= '<div class="form-group">';
-        $output .= '<button type="submit" class="btn btn-primary">Search Awards</button>';
-        $output .= '<button type="button" class="btn btn-secondary" id="reset-filters">Reset Filters</button>';
+        $output .= '<button type="submit" class="btn btn-primary">' . esc_html__('Search Awards', 'cts-awards') . '</button>';
+        $output .= '<button type="button" class="btn btn-secondary" id="reset-filters">' . esc_html__('Reset Filters', 'cts-awards') . '</button>';
         $output .= '</div>';
 
         $output .= '</form>';
@@ -282,7 +291,7 @@ function cts_awards_shortcode($atts)
 
     // Add awards display container - JavaScript will populate this via REST API
     $output .= '<div class="cts-awards-results">';
-    $output .= '<div class="cts-loading"><p>Loading awards...</p></div>';
+    $output .= '<div class="cts-loading"><p>' . esc_html__('Loading awards...', 'cts-awards') . '</p></div>';
     $output .= '</div>';
 
     return $output;

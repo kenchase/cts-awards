@@ -27,13 +27,14 @@ function cts_awards_custom_taxonomy()
             'menu_name' => __('Award Categories', 'cts-awards'),
         ),
         'hierarchical' => true,
-        'public' => true,
+        'public' => false,
+        'publicly_queryable' => false,
         'show_ui' => true,
         'show_admin_column' => true,
-        'show_in_nav_menus' => true,
+        'show_in_nav_menus' => false,
         'show_in_rest' => true,
-        'query_var' => true,
-        'rewrite' => array('slug' => 'award-category'),
+        'query_var' => false,
+        'rewrite' => false,
     );
     register_taxonomy('award_category', array('awards'), $taxonomy_args);
 }

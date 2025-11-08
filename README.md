@@ -1,145 +1,272 @@
-# CTS Awards #
-**Contributors:** (this should be a list of wordpress.org userid's)  
-**Donate link:** https://example.com/  
-**Tags:** comments, spam  
+# CTS Awards
+
+**Contributors:** Ken Chase  
+**Tags:** awards, custom-post-type, rest-api, search, filter, ajax, acf  
 **Requires at least:** 4.5  
 **Tested up to:** 6.8.3  
 **Requires PHP:** 5.6  
 **Stable tag:** 1.0.0  
 **License:** GPLv2 or later  
-**License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
+**License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+A comprehensive WordPress plugin for managing awards with advanced search, filtering, and API functionality.
 
-## Description ##
+## Description
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+CTS Awards is a feature-rich WordPress plugin designed to manage awards and their recipients. Built with modern web standards, it provides a complete solution for displaying, searching, and managing award information with a user-friendly interface.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+### Key Features
 
-A few notes about the sections above:
+-   **Custom Post Type**: Awards with full WordPress integration
+-   **Custom Taxonomy**: Award categories for organized classification
+-   **Advanced Search & Filtering**: Search by recipient name, organization, year, and category
+-   **REST API**: Complete API endpoints for integration with other applications
+-   **Responsive Display**: Mobile-friendly award listings with interactive filters
+-   **ACF Integration**: Uses Advanced Custom Fields for flexible data management
+-   **Internationalization**: Full translation support with included POT file
+-   **AJAX-Powered**: Fast, seamless user experience without page reloads
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+### Requirements
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+-   WordPress 4.5 or higher
+-   PHP 5.6 or higher
+-   Advanced Custom Fields plugin (required dependency)
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
-
-## Development & Build Process ##
+## Development & Build Process
 
 This plugin includes a build process for optimizing assets for production use.
 
-### Requirements ###
-- Node.js and npm
-- Grunt CLI
+### Requirements
 
-### Setup ###
+-   Node.js and npm
+-   Grunt CLI
+
+### Setup
+
 ```bash
 npm install
 ```
 
-### Build Commands ###
-- `npm run build` - Creates production-ready files in the `dist/` directory
-  - Cleans the dist directory
-  - Copies all necessary PHP, text, and language files
-  - Minifies JavaScript files (reduces size by ~49%)
-  - Minifies CSS files (reduces size by ~18%)
-- `npm run start` - Runs the default development tasks
-- `npm run i18n` - Generates translation files
-- `npm run readme` - Converts readme.txt to README.md
+### Build Commands
 
-### Production Deployment ###
+-   `npm run build` - Creates production-ready files in the `dist/` directory
+    -   Cleans the dist directory
+    -   Copies all necessary PHP, text, and language files
+    -   Minifies JavaScript files (reduces size by ~49%)
+    -   Minifies CSS files (reduces size by ~18%)
+-   `npm run start` - Runs the default development tasks
+-   `npm run i18n` - Generates translation files
+-   `npm run readme` - Converts readme.txt to README.md
+
+### Production Deployment
+
 The `dist/` folder contains the production-ready version of the plugin with optimized assets. This folder is excluded from version control and should be generated during deployment.
 
-## Installation ##
+## Installation
 
-This section describes how to install the plugin and get it working.
+1. **Install Advanced Custom Fields**
 
-e.g.
+    - Install and activate the Advanced Custom Fields plugin (required dependency)
+    - The plugin will display an admin notice if ACF is not active
 
-1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+2. **Install CTS Awards**
 
-## Frequently Asked Questions ##
+    - Upload the `cts-awards` folder to the `/wp-content/plugins/` directory
+    - Activate the plugin through the 'Plugins' menu in WordPress
 
-### A question that someone might have ###
+3. **Setup ACF Fields**
 
-An answer to that question.
+    - Create a field group for the Awards post type
+    - Add a repeater field with the name `cts_awd_rcpts` (CTS Award Recipients)
+    - Configure recipient sub-fields as needed (first name, last name, organization, year, etc.)
 
-### What about foo bar? ###
+4. **Create Award Categories**
 
-Answer to foo bar dilemma.
+    - Go to Awards > Award Categories in the WordPress admin
+    - Create categories to organize your awards
 
-## Screenshots ##
+5. **Add Awards**
 
-### 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from ###
+    - Go to Awards > Add New to create your first award
+    - Fill in the award details and add recipients using the ACF repeater field
+
+6. **Display Awards**
+    - Use the shortcode `[cts-awards]` to display awards on any page or post
+    - Customize the display using shortcode attributes (see Shortcodes section)
+
+## Custom Post Types
+
+### Awards (`awards`)
+
+-   **Purpose**: Store individual awards and their details
+-   **Visibility**: Admin-only (not public-facing by default)
+-   **Features**: Title, content, excerpt, author support
+-   **Menu**: Appears in WordPress admin with awards icon
+-   **REST API**: Enabled for API access
+-   **Search**: Excluded from default WordPress search
+
+## Custom Taxonomies
+
+### Award Categories (`award_category`)
+
+-   **Purpose**: Categorize awards for better organization
+-   **Type**: Hierarchical (like categories)
+-   **Visibility**: Admin interface only
+-   **REST API**: Enabled for API filtering
+-   **Admin**: Shows as column in awards list
+
+## REST API Endpoints
+
+The plugin provides a comprehensive REST API for external integrations:
+
+### GET `/wp-json/cts-awards/v1/awards`
+
+Retrieve awards with advanced filtering options.
+
+**Parameters:**
+
+-   `post_id` (integer): Get specific award by ID
+-   `year` (string): Filter by recipient year
+-   `category` (string): Filter by category slug or ID
+-   `search` (string): Search in titles and recipient fields
+-   `page` (integer): Page number for pagination (default: 1)
+-   `per_page` (integer): Results per page (default: 12, max: 100)
+
+**Example Requests:**
+
+```
+/wp-json/cts-awards/v1/awards
+/wp-json/cts-awards/v1/awards?year=2023
+/wp-json/cts-awards/v1/awards?category=excellence
+/wp-json/cts-awards/v1/awards?search=john&page=2
+```
+
+**Response Format:**
+
+```json
+{
+  "awards": [...],
+  "pagination": {
+    "total_awards": 50,
+    "total_pages": 5,
+    "current_page": 1,
+    "per_page": 12
+  }
+}
+```
+
+## Shortcodes
+
+### `[cts-awards]` - Main Awards Display
+
+Display searchable, filterable awards with AJAX functionality.
+
+**Basic Usage:**
+
+```
+[cts-awards]
+```
+
+**With Parameters:**
+
+```
+[cts-awards show_search="true" show_filters="true"]
+```
+
+**Available Attributes:**
+
+-   `show_search` (true/false): Display search box (default: true)
+-   `show_filters` (true/false): Display filter dropdowns (default: true)
+
+**Features:**
+
+-   **Live Search**: Real-time search across award titles and recipient information
+-   **Advanced Filters**: Filter by year, category, and award name
+-   **Infinite Scroll**: Automatic loading of additional results
+-   **Responsive Design**: Mobile-friendly interface
+-   **AJAX Loading**: Fast, seamless user experience
+
+## Frequently Asked Questions
+
+### Does this plugin require Advanced Custom Fields?
+
+Yes, Advanced Custom Fields (ACF) is a required dependency. The plugin will display an admin notice and may not function properly without ACF installed and activated.
+
+### How do I customize the awards display?
+
+The plugin includes CSS classes for easy styling. You can also modify the JavaScript behavior or create custom templates by copying the plugin's template files to your theme.
+
+### Can I use this plugin with page builders?
+
+Yes, you can use the `[cts-awards]` shortcode in any page builder that supports WordPress shortcodes.
+
+### Is the plugin translation-ready?
+
+Yes, the plugin includes a POT file for translations and uses WordPress internationalization functions throughout.
+
+## Screenshots
+
+### 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
+
 ![This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from](http://ps.w.org/cts-awards/assets/screenshot-1.png)
 
 the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
 directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
 (or jpg, jpeg, gif).
-### 2. This is the second screen shot ###
+
+### 2. This is the second screen shot
+
 ![This is the second screen shot](http://ps.w.org/cts-awards/assets/screenshot-2.png)
 
+## Changelog
 
-## Changelog ##
+### 1.0.0
 
-### 1.0 ###
-* A change since the previous version.
-* Another change.
+-   Initial release
+-   Custom post type for awards management
+-   Custom taxonomy for award categories
+-   REST API endpoints with advanced filtering
+-   AJAX-powered shortcode with search and filtering
+-   Advanced Custom Fields integration
+-   Responsive design and mobile support
+-   Internationalization support
+-   Build process for optimized assets
 
-### 0.5 ###
-* List versions from most recent at top to oldest at bottom.
+## Upgrade Notice
 
-## Upgrade Notice ##
+### 1.0.0
 
-### 1.0 ###
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+Initial release of CTS Awards plugin. Provides comprehensive awards management with search, filtering, and API functionality.
 
-### 0.5 ###
-This version fixes a security related bug.  Upgrade immediately.
+## Technical Details
 
-## Arbitrary section ##
+### File Structure
 
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+```
+cts-awards/
+├── cts-awards.php          # Main plugin file
+├── assets/
+│   ├── css/cts-awards.css  # Plugin styles
+│   └── js/cts-awards.js    # AJAX functionality
+├── includes/
+│   ├── custom-posts.php    # Award post type registration
+│   ├── custom-taxonomies.php # Award category taxonomy
+│   ├── rest-apis.php       # REST API endpoints
+│   └── shortcodes.php      # Shortcode implementation
+└── languages/
+    └── cts-awards.pot      # Translation template
+```
 
-## A brief Markdown Example ##
+### Hooks & Filters
 
-Ordered list:
+The plugin provides several hooks for customization:
 
-1. Some feature
-1. Another feature
-1. Something else about the plugin
+-   `cts_awards_before_display` - Before awards display
+-   `cts_awards_after_display` - After awards display
+-   Custom CSS classes for styling individual elements
 
-Unordered list:
+### Browser Support
 
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](https://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: https://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+-   Modern browsers (Chrome, Firefox, Safari, Edge)
+-   Internet Explorer 11+
+-   Mobile browsers (iOS Safari, Chrome Mobile)

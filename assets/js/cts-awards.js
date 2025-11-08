@@ -364,7 +364,7 @@ function generateAwardCardHTML(award, year, recipients) {
 		if (recipient.photo) {
 			const altText =
 				[recipient.fname, recipient.lname].filter(Boolean).join(" ") ||
-				"Recipient photo";
+				ctsAwardsAjax.strings.recipientPhoto;
 			html += `<img src="${escapeHtml(
 				recipient.photo
 			)}" alt="${escapeHtml(altText)}">`;
@@ -380,28 +380,28 @@ function generateAwardCardHTML(award, year, recipients) {
 			.filter(Boolean)
 			.join(" ");
 		if (recipientName) {
-			html += `<div class="cts-recipient-name"><strong>Recipient:</strong> ${escapeHtml(
+			html += `<div class="cts-recipient-name"><strong>${ctsAwardsAjax.strings.recipient}</strong> ${escapeHtml(
 				recipientName
 			)}</div>`;
 		}
 
 		// Title
 		if (recipient.title) {
-			html += `<div class="cts-recipient-title"><strong>Title:</strong> ${escapeHtml(
+			html += `<div class="cts-recipient-title"><strong>${ctsAwardsAjax.strings.title}</strong> ${escapeHtml(
 				recipient.title
 			)}</div>`;
 		}
 
 		// Organization
 		if (recipient.organization) {
-			html += `<div class="cts-recipient-org"><strong>Organization:</strong> ${escapeHtml(
+			html += `<div class="cts-recipient-org"><strong>${ctsAwardsAjax.strings.organization}</strong> ${escapeHtml(
 				recipient.organization
 			)}</div>`;
 		}
 
 		// Abstract Title
 		if (recipient.abstract_title) {
-			html += `<div class="cts-recipient-abstract"><strong>Abstract Title:</strong> ${escapeHtml(
+			html += `<div class="cts-recipient-abstract"><strong>${ctsAwardsAjax.strings.abstractTitle}</strong> ${escapeHtml(
 				recipient.abstract_title
 			)}</div>`;
 		}

@@ -46,6 +46,11 @@ function cts_awards_enqueue_assets()
                 'scrollToLoad' => __('Scroll down to load more awards...', 'cts-awards'),
                 'showFilters' => __('Show Filters', 'cts-awards'),
                 'hideFilters' => __('Hide Filters', 'cts-awards'),
+                'recipient' => __('Recipient:', 'cts-awards'),
+                'title' => __('Title:', 'cts-awards'),
+                'organization' => __('Organization:', 'cts-awards'),
+                'abstractTitle' => __('Abstract Title:', 'cts-awards'),
+                'recipientPhoto' => __('Recipient photo', 'cts-awards'),
             )
         ));
     }
@@ -63,7 +68,7 @@ function cts_awards_get_available_years()
 
     // Check if ACF is available
     if (!function_exists('get_field')) {
-        error_log(__('CTS Awards: ACF plugin is required but not available', 'cts-awards'));
+        error_log('CTS Awards: ACF plugin is required but not available');
         return $years;
     }
 

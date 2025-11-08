@@ -19,47 +19,23 @@ function cts_awards_register_api()
         'args' => array(
             'post_id' => array(
                 'description' => 'Filter awards by specific post ID',
-                'type' => ['integer', 'string'],
-                'sanitize_callback' => function ($param) {
-                    return empty($param) ? null : absint($param);
-                },
-                'validate_callback' => function ($param, $request, $key) {
-                    // Allow empty string/null (no filter) or valid positive integer
-                    return empty($param) || (is_numeric($param) && intval($param) > 0);
-                }
+                'type' => 'integer',
+                'sanitize_callback' => 'absint',
             ),
             'year' => array(
                 'description' => 'Filter awards by recipient year',
-                'type' => ['integer', 'string'],
-                'sanitize_callback' => function ($param) {
-                    return empty($param) || $param === 'all' ? null : absint($param);
-                },
-                'validate_callback' => function ($param, $request, $key) {
-                    // Allow empty, "all", or valid year range
-                    return empty($param) || $param === 'all' || (is_numeric($param) && intval($param) >= 1900 && intval($param) <= date('Y') + 10);
-                }
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
             ),
             'category' => array(
                 'description' => 'Filter awards by award category slug or ID',
                 'type' => 'string',
-                'sanitize_callback' => function ($param) {
-                    return empty($param) ? null : sanitize_text_field($param);
-                },
-                'validate_callback' => function ($param, $request, $key) {
-                    // Allow empty (no filter) or non-empty category values
-                    return empty($param) || !empty(trim($param));
-                }
+                'sanitize_callback' => 'sanitize_text_field',
             ),
             'search' => array(
                 'description' => 'Search in award titles and recipient fields (first name, last name, organization, title, abstract title)',
                 'type' => 'string',
-                'sanitize_callback' => function ($param) {
-                    return empty($param) ? null : sanitize_text_field($param);
-                },
-                'validate_callback' => function ($param, $request, $key) {
-                    // Allow empty (no search) or non-empty search terms
-                    return empty($param) || !empty(trim($param));
-                }
+                'sanitize_callback' => 'sanitize_text_field',
             ),
             'page' => array(
                 'description' => 'Page number for pagination',
@@ -67,9 +43,6 @@ function cts_awards_register_api()
                 'default' => 1,
                 'minimum' => 1,
                 'sanitize_callback' => 'absint',
-                'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param) && $param > 0;
-                }
             ),
             'per_page' => array(
                 'description' => 'Number of posts per page',
@@ -78,10 +51,8 @@ function cts_awards_register_api()
                 'minimum' => 1,
                 'maximum' => 100,
                 'sanitize_callback' => 'absint',
-                'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param) && $param > 0 && $param <= 100;
-                }
             ),
+
         ),
     ));
 }
@@ -162,7 +133,7 @@ function cts_awards_search_posts_and_fields($search_term, $category = null, $pos
 
         foreach ($all_awards as $award_id) {
             $recipients = get_field('cts_awd_rcpts', $award_id);
-            
+
             // Ensure recipients is an array before processing
             if (!is_array($recipients)) {
                 continue;
@@ -238,6 +209,7 @@ function cts_awards_get_awards($request)
             'numberposts' => -1,
             'orderby' => 'title',
             'order' => 'ASC',
+            'suppress_filters' => false, // Allow translation filters to work
         );
 
         // If category is specified, add taxonomy query

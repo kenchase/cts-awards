@@ -191,3 +191,23 @@ msgstr ""
 #: includes/shortcodes.php:244
 msgid "Reset Filters"
 msgstr ""
+
+#: includes/shortcodes.php:45
+msgid "Recipient:"
+msgstr ""
+
+#: includes/shortcodes.php:46
+msgid "Title:"
+msgstr ""
+
+#: includes/shortcodes.php:47
+msgid "Organization:"
+msgstr ""
+
+#: includes/shortcodes.php:48
+msgid "Abstract Title:"
+msgstr ""
+
+#: includes/shortcodes.php:49
+msgid "Recipient photo"
+msgstr ""

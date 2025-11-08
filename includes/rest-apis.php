@@ -30,27 +30,35 @@ function cts_awards_register_api()
             ),
             'year' => array(
                 'description' => 'Filter awards by recipient year',
-                'type' => 'integer',
-                'sanitize_callback' => 'absint',
+                'type' => ['integer', 'string'],
+                'sanitize_callback' => function($param) {
+                    return empty($param) || $param === 'all' ? null : absint($param);
+                },
                 'validate_callback' => function ($param, $request, $key) {
-                    return is_numeric($param) && $param >= 1900 && $param <= date('Y') + 10;
+                    // Allow empty, "all", or valid year range
+                    return empty($param) || $param === 'all' || (is_numeric($param) && intval($param) >= 1900 && intval($param) <= date('Y') + 10);
                 }
             ),
             'category' => array(
                 'description' => 'Filter awards by award category slug or ID',
                 'type' => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
+                'sanitize_callback' => function($param) {
+                    return empty($param) ? null : sanitize_text_field($param);
+                },
                 'validate_callback' => function ($param, $request, $key) {
-                    // Allow both numeric IDs and text slugs
-                    return !empty($param);
+                    // Allow empty (no filter) or non-empty category values
+                    return empty($param) || !empty(trim($param));
                 }
             ),
             'search' => array(
                 'description' => 'Search in award titles and recipient fields (first name, last name, organization, title, abstract title)',
                 'type' => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
+                'sanitize_callback' => function($param) {
+                    return empty($param) ? null : sanitize_text_field($param);
+                },
                 'validate_callback' => function ($param, $request, $key) {
-                    return !empty(trim($param));
+                    // Allow empty (no search) or non-empty search terms
+                    return empty($param) || !empty(trim($param));
                 }
             ),
             'page' => array(

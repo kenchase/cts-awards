@@ -45,11 +45,18 @@ function cts_awards_enqueue_assets()
 /**
  * Get available years from awards
  * 
+ * @since 1.0.0
  * @return array Array of years
  */
 function cts_awards_get_available_years()
 {
     $years = array();
+
+    // Check if ACF is available
+    if (!function_exists('get_field')) {
+        error_log('CTS Awards: ACF plugin is required but not available');
+        return $years;
+    }
 
     $awards = get_posts(array(
         'post_type' => 'awards',
@@ -58,13 +65,11 @@ function cts_awards_get_available_years()
     ));
 
     foreach ($awards as $award) {
-        if (function_exists('get_field')) {
-            $recipients = get_field('cts_awd_rcpts', $award->ID);
-            if ($recipients) {
-                foreach ($recipients as $recipient) {
-                    if (!empty($recipient['cts_awd_rcpt_year'])) {
-                        $years[] = $recipient['cts_awd_rcpt_year'];
-                    }
+        $recipients = get_field('cts_awd_rcpts', $award->ID);
+        if (is_array($recipients)) {
+            foreach ($recipients as $recipient) {
+                if (!empty($recipient['cts_awd_rcpt_year'])) {
+                    $years[] = intval($recipient['cts_awd_rcpt_year']);
                 }
             }
         }

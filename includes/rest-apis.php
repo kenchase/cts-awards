@@ -131,7 +131,7 @@ function cts_awards_search_posts_and_fields($search_term, $category = null, $pos
     $title_matches = get_posts($title_query_args);
     $post_ids = array_merge($post_ids, $title_matches);
 
-    // Search in ACF custom fields
+    // Search in ACF custom fields - only if ACF is available
     if (function_exists('get_field')) {
         // Get all awards posts to search through their custom fields
         $all_awards_args = array(
@@ -162,6 +162,11 @@ function cts_awards_search_posts_and_fields($search_term, $category = null, $pos
 
         foreach ($all_awards as $award_id) {
             $recipients = get_field('cts_awd_rcpts', $award_id);
+            
+            // Ensure recipients is an array before processing
+            if (!is_array($recipients)) {
+                continue;
+            }
 
             if ($recipients) {
                 foreach ($recipients as $recipient) {

@@ -1,5 +1,10 @@
 <?php
 
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Register custom taxonomy for award categories
  *

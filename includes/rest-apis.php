@@ -50,6 +50,27 @@ function cts_awards_register_api()
                     return !empty(trim($param));
                 }
             ),
+            'page' => array(
+                'description' => 'Page number for pagination',
+                'type' => 'integer',
+                'default' => 1,
+                'minimum' => 1,
+                'sanitize_callback' => 'absint',
+                'validate_callback' => function ($param, $request, $key) {
+                    return is_numeric($param) && $param > 0;
+                }
+            ),
+            'per_page' => array(
+                'description' => 'Number of posts per page',
+                'type' => 'integer',
+                'default' => 12,
+                'minimum' => 1,
+                'maximum' => 100,
+                'sanitize_callback' => 'absint',
+                'validate_callback' => function ($param, $request, $key) {
+                    return is_numeric($param) && $param > 0 && $param <= 100;
+                }
+            ),
         ),
     ));
 }
@@ -175,7 +196,7 @@ function cts_awards_search_posts_and_fields($search_term, $category = null, $pos
 }
 
 /**
- * Get all awards
+ * Get all awards with pagination support
  */
 function cts_awards_get_awards($request)
 {
@@ -184,6 +205,8 @@ function cts_awards_get_awards($request)
     $year = $request->get_param('year');
     $category = $request->get_param('category');
     $search = $request->get_param('search');
+    $page = $request->get_param('page') ?: 1;
+    $per_page = $request->get_param('per_page') ?: 12;
 
     // If search is specified, handle search logic
     if ($search) {
@@ -332,37 +355,67 @@ function cts_awards_get_awards($request)
         );
     }
 
-    // Sort awards by title first, then by the latest year in recipients
-    usort($formatted_awards, function ($a, $b) {
-        // First sort by title
-        $title_comparison = strcmp($a['title'], $b['title']);
-        if ($title_comparison !== 0) {
-            return $title_comparison;
-        }
-
-        // If titles are the same, sort by latest year in recipients (descending)
-        $latest_year_a = 0;
-        $latest_year_b = 0;
-
-        if (!empty($a['recipients'])) {
-            foreach ($a['recipients'] as $recipient) {
-                if (!empty($recipient['year']) && $recipient['year'] > $latest_year_a) {
-                    $latest_year_a = $recipient['year'];
+    // Since awards can have multiple recipient years, we need to create year-based cards for pagination
+    $award_year_cards = array();
+    
+    foreach ($formatted_awards as $award) {
+        if (!empty($award['recipients'])) {
+            // Group recipients by year
+            $recipients_by_year = array();
+            
+            foreach ($award['recipients'] as $recipient) {
+                $recipient_year = !empty($recipient['year']) ? $recipient['year'] : 0;
+                if (!isset($recipients_by_year[$recipient_year])) {
+                    $recipients_by_year[$recipient_year] = array();
                 }
+                $recipients_by_year[$recipient_year][] = $recipient;
             }
-        }
-
-        if (!empty($b['recipients'])) {
-            foreach ($b['recipients'] as $recipient) {
-                if (!empty($recipient['year']) && $recipient['year'] > $latest_year_b) {
-                    $latest_year_b = $recipient['year'];
-                }
+            
+            // Create cards for each year
+            foreach ($recipients_by_year as $award_year => $year_recipients) {
+                $award_year_cards[] = array(
+                    'award' => $award,
+                    'year' => $award_year,
+                    'recipients' => $year_recipients,
+                    'sort_key' => $award_year . '_' . $award['title'] // For consistent sorting
+                );
             }
+        } else {
+            // Award with no recipients
+            $award_year_cards[] = array(
+                'award' => $award,
+                'year' => 0,
+                'recipients' => array(),
+                'sort_key' => '0_' . $award['title']
+            );
         }
-
-        // Sort by year descending (newest first)
-        return $latest_year_b - $latest_year_a;
+    }
+    
+    // Sort cards by year (descending) then by award title
+    usort($award_year_cards, function ($a, $b) {
+        $year_comparison = $b['year'] - $a['year'];
+        if ($year_comparison !== 0) return $year_comparison;
+        return strcmp($a['award']['title'], $b['award']['title']);
     });
+    
+    // Calculate pagination
+    $total_cards = count($award_year_cards);
+    $total_pages = ceil($total_cards / $per_page);
+    $offset = ($page - 1) * $per_page;
+    $paginated_cards = array_slice($award_year_cards, $offset, $per_page);
+    
+    // Prepare response with pagination metadata
+    $response_data = array(
+        'cards' => $paginated_cards,
+        'pagination' => array(
+            'current_page' => $page,
+            'per_page' => $per_page,
+            'total_cards' => $total_cards,
+            'total_pages' => $total_pages,
+            'has_next_page' => $page < $total_pages,
+            'has_prev_page' => $page > 1
+        )
+    );
 
-    return new WP_REST_Response($formatted_awards, 200);
+    return new WP_REST_Response($response_data, 200);
 }

@@ -2,11 +2,24 @@
  * CTS Awards Frontend JavaScript
  */
 
+// Global pagination state
+let currentPage = 1;
+let hasNextPage = false;
+let isLoading = false;
+let currentFilters = {
+	year: "all",
+	postId: "",
+	category: "",
+	search: ""
+};
+
 document.addEventListener("DOMContentLoaded", function () {
 	// Initialize awards search form functionality
 	initAwardsSearchForm();
 	// Load initial data
 	loadAwardsData();
+	// Initialize lazy loading
+	initLazyLoading();
 });
 
 /**
@@ -109,13 +122,18 @@ function loadAwardsData() {
 		searchInput.value = currentSearch;
 	}
 
+	// Reset pagination for initial load
+	currentPage = 1;
+
 	// Load data with current filters
 	fetchAwardsFromAPI(
 		apiUrl,
 		currentYear,
 		currentPostId,
 		currentCategory,
-		currentSearch
+		currentSearch,
+		1,
+		false
 	);
 }
 
@@ -138,8 +156,11 @@ function resetFilters(apiUrl) {
 	const currentUrl = new URL(window.location);
 	window.history.pushState({}, "", currentUrl.pathname);
 
+	// Reset pagination for reset
+	currentPage = 1;
+
 	// Fetch all awards (no filters)
-	fetchAwardsFromAPI(apiUrl, "all", "", "", "");
+	fetchAwardsFromAPI(apiUrl, "all", "", "", "", 1, false);
 }
 
 /**
@@ -169,8 +190,11 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 		(params.toString() ? "?" + params.toString() : "");
 	window.history.pushState({}, "", newUrl);
 
+	// Reset pagination for new search
+	currentPage = 1;
+
 	// Fetch filtered data from API
-	fetchAwardsFromAPI(apiUrl, year, postId, category, search);
+	fetchAwardsFromAPI(apiUrl, year, postId, category, search, 1, false);
 }
 
 /**
@@ -181,7 +205,9 @@ function fetchAwardsFromAPI(
 	year = "all",
 	postId = "",
 	category = "",
-	search = ""
+	search = "",
+	page = 1,
+	append = false
 ) {
 	// Build API URL with parameters
 	const url = new URL(apiUrl);
@@ -197,11 +223,17 @@ function fetchAwardsFromAPI(
 	if (search) {
 		url.searchParams.append("search", search);
 	}
+	url.searchParams.append("page", page);
+	url.searchParams.append("per_page", 12);
 
 	console.log("API URL being called:", url.toString());
 
-	// Show loading state
-	showLoadingState();
+	// Show loading state only if not appending
+	if (!append) {
+		showLoadingState();
+	} else {
+		showLoadMoreState();
+	}
 
 	// Fetch data from API
 	fetch(url.toString())
@@ -213,34 +245,58 @@ function fetchAwardsFromAPI(
 		})
 		.then((data) => {
 			// Update the results display
-			displayAwardsResults(data, year, postId, category, search);
-			// Update filter info
-			updateFilterInfo(year, postId, category, search, data);
+			displayAwardsResults(data, year, postId, category, search, append);
+			// Update filter info only for initial load
+			if (!append) {
+				updateFilterInfo(year, postId, category, search, data);
+			}
 		})
 		.catch((error) => {
 			console.error("Error fetching awards:", error);
-			showErrorState();
+			if (!append) {
+				showErrorState();
+			} else {
+				hideLoadMoreState();
+			}
 		});
 }
 
 /**
  * Display awards results
  */
-function displayAwardsResults(awards, year, postId, category, search = "") {
+function displayAwardsResults(responseData, year, postId, category, search = "", append = false) {
 	const parentContainer = document.querySelector(".cts-awards-results");
 	if (!parentContainer) {
 		console.error("Results container not found");
 		return;
 	}
 
-	// Remove all existing content including loading states
-	const existingContent = parentContainer.querySelectorAll(
-		".cts-awards-grid, .cts-no-awards, .cts-loading, .cts-error, .cts-awards-filters-info"
-	);
-	existingContent.forEach((el) => el.remove());
+	// Update pagination state
+	if (responseData.pagination) {
+		currentPage = responseData.pagination.current_page;
+		hasNextPage = responseData.pagination.has_next_page;
+	}
+	
+	// Update current filters
+	currentFilters = { year, postId, category, search };
+	isLoading = false;
 
-	if (!awards || awards.length === 0) {
-		// Show no results message
+	// Handle loading states
+	hideLoadingState();
+	hideLoadMoreState();
+
+	if (!append) {
+		// Remove all existing content for initial load
+		const existingContent = parentContainer.querySelectorAll(
+			".cts-awards-grid, .cts-no-awards, .cts-loading, .cts-error, .cts-awards-filters-info, .cts-scroll-indicator"
+		);
+		existingContent.forEach((el) => el.remove());
+	}
+
+	const cards = responseData.cards || [];
+	
+	if (!append && cards.length === 0) {
+		// Show no results message for initial load
 		const noResultsDiv = document.createElement("div");
 		noResultsDiv.className = "cts-no-awards";
 		noResultsDiv.innerHTML =
@@ -249,48 +305,16 @@ function displayAwardsResults(awards, year, postId, category, search = "") {
 		return;
 	}
 
-	// Create results grid
-	const gridDiv = document.createElement("div");
-	gridDiv.className = "cts-awards-grid";
-
-	// Process awards data to create year-based cards (similar to PHP logic)
-	const awardYearCards = [];
-
-	awards.forEach((award) => {
-		if (award.recipients && award.recipients.length > 0) {
-			// Group recipients by year
-			const recipientsByYear = {};
-
-			award.recipients.forEach((recipient) => {
-				const recipientYear = recipient.year;
-				if (recipientYear) {
-					if (!recipientsByYear[recipientYear]) {
-						recipientsByYear[recipientYear] = [];
-					}
-					recipientsByYear[recipientYear].push(recipient);
-				}
-			});
-
-			// Create cards for each year
-			Object.keys(recipientsByYear).forEach((awardYear) => {
-				awardYearCards.push({
-					award: award,
-					year: parseInt(awardYear),
-					recipients: recipientsByYear[awardYear],
-				});
-			});
-		}
-	});
-
-	// Sort cards by year (descending) then by award title
-	awardYearCards.sort((a, b) => {
-		const yearComparison = b.year - a.year;
-		if (yearComparison !== 0) return yearComparison;
-		return a.award.title.localeCompare(b.award.title);
-	});
+	// Get or create results grid
+	let gridDiv = parentContainer.querySelector(".cts-awards-grid");
+	if (!gridDiv && !append) {
+		gridDiv = document.createElement("div");
+		gridDiv.className = "cts-awards-grid";
+		parentContainer.appendChild(gridDiv);
+	}
 
 	// Generate HTML for each card
-	awardYearCards.forEach((cardData) => {
+	cards.forEach((cardData) => {
 		const cardDiv = document.createElement("div");
 		cardDiv.className = "cts-award-card cts-award-year-card";
 		cardDiv.innerHTML = generateAwardCardHTML(
@@ -301,7 +325,8 @@ function displayAwardsResults(awards, year, postId, category, search = "") {
 		gridDiv.appendChild(cardDiv);
 	});
 
-	parentContainer.appendChild(gridDiv);
+	// Add scroll indicator if there are more pages
+	updateScrollIndicator();
 }
 
 /**
@@ -383,7 +408,7 @@ function generateAwardCardHTML(award, year, recipients) {
 /**
  * Update filter information display
  */
-function updateFilterInfo(year, postId, category, search, awards) {
+function updateFilterInfo(year, postId, category, search, responseData) {
 	const filterInfoContainer = document.querySelector(
 		".cts-awards-filters-info"
 	);
@@ -397,9 +422,10 @@ function updateFilterInfo(year, postId, category, search, awards) {
 
 	if (postId) {
 		// Find award title from results
-		const award = awards.find((a) => a.id == postId);
-		if (award) {
-			filterInfo.push(`Award: ${award.title}`);
+		const cards = responseData.cards || [];
+		const cardWithAward = cards.find((card) => card.award && card.award.id == postId);
+		if (cardWithAward) {
+			filterInfo.push(`Award: ${cardWithAward.award.title}`);
 		}
 	}
 
@@ -531,4 +557,122 @@ function initCollapsibleFilters() {
 			toggleText.textContent = "Hide Filters";
 		}
 	});
+}
+
+/**
+ * Initialize lazy loading functionality
+ */
+function initLazyLoading() {
+	window.addEventListener("scroll", throttle(checkScrollPosition, 200));
+}
+
+/**
+ * Check scroll position and load more content if needed
+ */
+function checkScrollPosition() {
+	if (isLoading || !hasNextPage) return;
+
+	const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+	const windowHeight = window.innerHeight;
+	const documentHeight = document.documentElement.scrollHeight;
+
+	// Load more when user is 300px from bottom
+	if (scrollTop + windowHeight >= documentHeight - 300) {
+		loadMoreAwards();
+	}
+}
+
+/**
+ * Load more awards for lazy loading
+ */
+function loadMoreAwards() {
+	if (isLoading || !hasNextPage) return;
+
+	const form = document.getElementById("cts-awards-search");
+	if (!form) return;
+
+	const apiUrl = form.dataset.apiUrl;
+	if (!apiUrl) return;
+
+	isLoading = true;
+	const nextPage = currentPage + 1;
+
+	fetchAwardsFromAPI(
+		apiUrl,
+		currentFilters.year,
+		currentFilters.postId,
+		currentFilters.category,
+		currentFilters.search,
+		nextPage,
+		true
+	);
+}
+
+/**
+ * Show loading state for more content
+ */
+function showLoadMoreState() {
+	const parentContainer = document.querySelector(".cts-awards-results");
+	if (!parentContainer) return;
+
+	// Remove existing load more indicator
+	const existing = parentContainer.querySelector(".cts-load-more");
+	if (existing) existing.remove();
+
+	const loadMoreDiv = document.createElement("div");
+	loadMoreDiv.className = "cts-load-more";
+	loadMoreDiv.innerHTML = "<p>Loading more awards...</p>";
+	parentContainer.appendChild(loadMoreDiv);
+}
+
+/**
+ * Hide loading state for more content
+ */
+function hideLoadMoreState() {
+	const loadMoreDiv = document.querySelector(".cts-load-more");
+	if (loadMoreDiv) loadMoreDiv.remove();
+}
+
+/**
+ * Hide main loading state
+ */
+function hideLoadingState() {
+	const loadingDiv = document.querySelector(".cts-loading");
+	if (loadingDiv) loadingDiv.remove();
+}
+
+/**
+ * Update scroll indicator visibility
+ */
+function updateScrollIndicator() {
+	const parentContainer = document.querySelector(".cts-awards-results");
+	if (!parentContainer) return;
+
+	// Remove existing indicator
+	const existing = parentContainer.querySelector(".cts-scroll-indicator");
+	if (existing) existing.remove();
+
+	// Add indicator if there are more pages
+	if (hasNextPage) {
+		const indicatorDiv = document.createElement("div");
+		indicatorDiv.className = "cts-scroll-indicator";
+		indicatorDiv.innerHTML = "<p>Scroll down to load more awards...</p>";
+		parentContainer.appendChild(indicatorDiv);
+	}
+}
+
+/**
+ * Throttle function for performance
+ */
+function throttle(func, limit) {
+	let inThrottle;
+	return function() {
+		const args = arguments;
+		const context = this;
+		if (!inThrottle) {
+			func.apply(context, args);
+			inThrottle = true;
+			setTimeout(() => inThrottle = false, limit);
+		}
+	};
 }

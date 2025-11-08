@@ -33,6 +33,12 @@ function cts_awards_enqueue_assets()
             '1.0.0',
             true
         );
+        
+        // Localize script with AJAX data
+        wp_localize_script('cts-awards-script', 'ctsAwardsAjax', array(
+            'restUrl' => rest_url('cts-awards/v1/awards'),
+            'nonce' => wp_create_nonce('wp_rest')
+        ));
     }
 }
 

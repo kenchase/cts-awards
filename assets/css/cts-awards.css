@@ -334,3 +334,27 @@
 		justify-content: center;
 	}
 }
+
+/* Loading States */
+.cts-loading,
+.cts-load-more {
+	padding: var(--space-8);
+	text-align: center;
+	color: var(--text-slate-600);
+	font-style: italic;
+}
+
+.cts-load-more {
+	padding: var(--space-4);
+	border-top: 1px solid var(--border-gray-200);
+	background-color: var(--bg-gray-50);
+}
+
+.cts-scroll-indicator {
+	padding: var(--space-4);
+	text-align: center;
+	color: var(--text-slate-400);
+	font-size: var(--text-sm);
+	border-top: 1px dashed var(--border-gray-200);
+	margin-top: var(--space-4);
+}

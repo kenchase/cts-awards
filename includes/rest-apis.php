@@ -20,7 +20,7 @@ function cts_awards_register_api()
             'post_id' => array(
                 'description' => 'Filter awards by specific post ID',
                 'type' => ['integer', 'string'],
-                'sanitize_callback' => function($param) {
+                'sanitize_callback' => function ($param) {
                     return empty($param) ? null : absint($param);
                 },
                 'validate_callback' => function ($param, $request, $key) {
@@ -31,7 +31,7 @@ function cts_awards_register_api()
             'year' => array(
                 'description' => 'Filter awards by recipient year',
                 'type' => ['integer', 'string'],
-                'sanitize_callback' => function($param) {
+                'sanitize_callback' => function ($param) {
                     return empty($param) || $param === 'all' ? null : absint($param);
                 },
                 'validate_callback' => function ($param, $request, $key) {
@@ -42,7 +42,7 @@ function cts_awards_register_api()
             'category' => array(
                 'description' => 'Filter awards by award category slug or ID',
                 'type' => 'string',
-                'sanitize_callback' => function($param) {
+                'sanitize_callback' => function ($param) {
                     return empty($param) ? null : sanitize_text_field($param);
                 },
                 'validate_callback' => function ($param, $request, $key) {
@@ -53,7 +53,7 @@ function cts_awards_register_api()
             'search' => array(
                 'description' => 'Search in award titles and recipient fields (first name, last name, organization, title, abstract title)',
                 'type' => 'string',
-                'sanitize_callback' => function($param) {
+                'sanitize_callback' => function ($param) {
                     return empty($param) ? null : sanitize_text_field($param);
                 },
                 'validate_callback' => function ($param, $request, $key) {

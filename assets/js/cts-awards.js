@@ -10,7 +10,7 @@ let currentFilters = {
 	year: "all",
 	postId: "",
 	category: "",
-	search: ""
+	search: "",
 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -266,7 +266,14 @@ function fetchAwardsFromAPI(
 /**
  * Display awards results
  */
-function displayAwardsResults(responseData, year, postId, category, search = "", append = false) {
+function displayAwardsResults(
+	responseData,
+	year,
+	postId,
+	category,
+	search = "",
+	append = false
+) {
 	const parentContainer = document.querySelector(".cts-awards-results");
 	if (!parentContainer) {
 		console.error("Results container not found");
@@ -278,7 +285,7 @@ function displayAwardsResults(responseData, year, postId, category, search = "",
 		currentPage = responseData.pagination.current_page;
 		hasNextPage = responseData.pagination.has_next_page;
 	}
-	
+
 	// Update current filters
 	currentFilters = { year, postId, category, search };
 	isLoading = false;
@@ -296,7 +303,7 @@ function displayAwardsResults(responseData, year, postId, category, search = "",
 	}
 
 	const cards = responseData.cards || [];
-	
+
 	if (!append && cards.length === 0) {
 		// Show no results message for initial load
 		const noResultsDiv = document.createElement("div");
@@ -425,7 +432,9 @@ function updateFilterInfo(year, postId, category, search, responseData) {
 	if (postId) {
 		// Find award title from results
 		const cards = responseData.cards || [];
-		const cardWithAward = cards.find((card) => card.award && card.award.id == postId);
+		const cardWithAward = cards.find(
+			(card) => card.award && card.award.id == postId
+		);
 		if (cardWithAward) {
 			filterInfo.push(`Award: ${cardWithAward.award.title}`);
 		}
@@ -668,13 +677,13 @@ function updateScrollIndicator() {
  */
 function throttle(func, limit) {
 	let inThrottle;
-	return function() {
+	return function () {
 		const args = arguments;
 		const context = this;
 		if (!inThrottle) {
 			func.apply(context, args);
 			inThrottle = true;
-			setTimeout(() => inThrottle = false, limit);
+			setTimeout(() => (inThrottle = false), limit);
 		}
 	};
 }

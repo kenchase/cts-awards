@@ -1,281 +1,145 @@
-# CTS Awards Plugin
+# CTS Awards #
+**Contributors:** (this should be a list of wordpress.org userid's)  
+**Donate link:** https://example.com/  
+**Tags:** comments, spam  
+**Requires at least:** 4.5  
+**Tested up to:** 6.8.3  
+**Requires PHP:** 5.6  
+**Stable tag:** 1.0.0  
+**License:** GPLv2 or later  
+**License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
 
-A WordPress plugin for managing and displaying awards with search and filtering functionality.
+Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
 
-## Description
+## Description ##
 
-The CTS Awards plugin provides a comprehensive system for managing awards and their recipients. It features a custom post type for awards, taxonomies for categorization, and a powerful search interface with REST API integration.
+This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
 
-## Features
+For backwards compatibility, if this section is missing, the full length of the short description will be used, and
+Markdown parsed.
 
--   ✅ Custom post type for awards management
--   🏷️ Award categories taxonomy
--   🔍 Advanced search and filtering
--   📱 Responsive design with lazy loading
--   🚀 REST API integration
--   👥 Multiple recipients per award
--   📅 Year-based filtering
--   🖼️ Photo support for recipients
+A few notes about the sections above:
 
-## Requirements
+*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
+*   "Tags" is a comma separated list of tags that apply to the plugin
+*   "Requires at least" is the lowest version that the plugin will work on
+*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
+higher versions... this is just the highest one you've verified.
+*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
+stable.
 
--   WordPress 5.0 or higher
--   PHP 7.4 or higher
--   **Advanced Custom Fields (ACF) Pro** - Required for recipient data management
+    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
+if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
+for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
+is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
+your in-development version, without having that information incorrectly disclosed about the current stable version
+that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
 
-## Installation
+    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
+you put the stable version, in order to eliminate any doubt.
 
-1. Upload the plugin files to `/wp-content/plugins/cts-awards/`
-2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Ensure Advanced Custom Fields Pro is installed and activated
-4. Configure ACF fields for award recipients (see ACF Configuration section)
+## Development & Build Process ##
 
-## Usage
+This plugin includes a build process for optimizing assets for production use.
 
-### Basic Shortcode
+### Requirements ###
+- Node.js and npm
+- Grunt CLI
 
-Display awards with search form:
-
-```
-[cts-awards]
-```
-
-### Shortcode Parameters
-
-| Parameter  | Default | Description               |
-| ---------- | ------- | ------------------------- |
-| `form`     | `true`  | Show/hide search form     |
-| `year`     | `all`   | Filter by specific year   |
-| `post_id`  | `""`    | Show specific award by ID |
-| `category` | `""`    | Filter by category slug   |
-
-### Examples
-
-```html
-<!-- Display all awards with search form -->
-[cts-awards]
-
-<!-- Display awards without search form -->
-[cts-awards form="false"]
-
-<!-- Display awards from 2023 only -->
-[cts-awards year="2023"]
-
-<!-- Display specific award -->
-[cts-awards post_id="123"]
-
-<!-- Display awards from specific category -->
-[cts-awards category="excellence-award"]
-
-<!-- Combined filters -->
-[cts-awards year="2023" category="excellence-award" form="true"]
+### Setup ###
+```bash
+npm install
 ```
 
-### URL Parameters
+### Build Commands ###
+- `npm run build` - Creates production-ready files in the `dist/` directory
+  - Cleans the dist directory
+  - Copies all necessary PHP, text, and language files
+  - Minifies JavaScript files (reduces size by ~49%)
+  - Minifies CSS files (reduces size by ~18%)
+- `npm run start` - Runs the default development tasks
+- `npm run i18n` - Generates translation files
+- `npm run readme` - Converts readme.txt to README.md
 
-The plugin supports URL parameters for bookmarkable searches:
+### Production Deployment ###
+The `dist/` folder contains the production-ready version of the plugin with optimized assets. This folder is excluded from version control and should be generated during deployment.
 
--   `?year=2023` - Filter by year
--   `?category=excellence-award` - Filter by category
--   `?search=john+doe` - Search term
--   `?post_id=123` - Specific award
+## Installation ##
 
-## ACF Configuration
+This section describes how to install the plugin and get it working.
 
-The plugin requires the following ACF field setup:
+e.g.
 
-### Field Group: Award Recipients
+1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
 
--   **Field Name:** `cts_awd_rcpts`
--   **Field Type:** Repeater
--   **Sub-fields:**
-    -   `cts_awd_rcpt_year` (Number) - Recipient year
-    -   `cts_awd_rcpt_fname` (Text) - First name
-    -   `cts_awd_rcpt_lname` (Text) - Last name
-    -   `cts_awd_rcpt_title` (Text) - Job title
-    -   `cts_awd_rcpt_org` (Text) - Organization
-    -   `cts_awd_rcpt_abstr_title` (Text) - Abstract title
-    -   `imagects_awd_rcpt_photo` (Image) - Recipient photo
+## Frequently Asked Questions ##
 
-**Location Rules:** Post Type equals Awards
+### A question that someone might have ###
 
-## REST API
+An answer to that question.
 
-### Endpoint
+### What about foo bar? ###
 
-```
-GET /wp-json/cts-awards/v1/awards
-```
+Answer to foo bar dilemma.
 
-### Parameters
+## Screenshots ##
 
-| Parameter  | Type    | Description                            |
-| ---------- | ------- | -------------------------------------- |
-| `search`   | string  | Search in titles and recipient fields  |
-| `year`     | integer | Filter by recipient year               |
-| `category` | string  | Category slug or ID                    |
-| `post_id`  | integer | Specific award ID                      |
-| `page`     | integer | Page number (default: 1)               |
-| `per_page` | integer | Items per page (default: 12, max: 100) |
+### 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from ###
+![This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from](http://ps.w.org/cts-awards/assets/screenshot-1.png)
 
-### Example Response
+the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
+directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
+(or jpg, jpeg, gif).
+### 2. This is the second screen shot ###
+![This is the second screen shot](http://ps.w.org/cts-awards/assets/screenshot-2.png)
 
-```json
-{
-	"cards": [
-		{
-			"award": {
-				"id": 123,
-				"title": "Excellence Award",
-				"content": "Award description...",
-				"categories": [
-					{
-						"id": 1,
-						"name": "Excellence",
-						"slug": "excellence"
-					}
-				]
-			},
-			"year": 2023,
-			"recipients": [
-				{
-					"year": "2023",
-					"fname": "John",
-					"lname": "Doe",
-					"title": "Director",
-					"organization": "Example Corp",
-					"abstract_title": "Innovation in Technology",
-					"photo": "https://example.com/photo.jpg"
-				}
-			]
-		}
-	],
-	"pagination": {
-		"current_page": 1,
-		"per_page": 12,
-		"total_cards": 25,
-		"total_pages": 3,
-		"has_next_page": true,
-		"has_prev_page": false
-	}
-}
-```
 
-## File Structure
+## Changelog ##
 
-```
-cts-awards/
-├── cts-awards.php          # Main plugin file
-├── README.md               # This file
-├── assets/
-│   ├── css/
-│   │   └── cts-awards.css  # Plugin styles
-│   └── js/
-│       └── cts-awards.js   # Frontend JavaScript
-└── includes/
-    ├── custom-posts.php    # Awards post type
-    ├── custom-taxonomies.php # Award categories
-    ├── rest-apis.php       # REST API endpoints
-    └── shortcodes.php      # Shortcode implementation
-```
+### 1.0 ###
+* A change since the previous version.
+* Another change.
 
-## Development
+### 0.5 ###
+* List versions from most recent at top to oldest at bottom.
 
-### CSS Custom Properties
+## Upgrade Notice ##
 
-The plugin uses CSS custom properties for easy theming:
+### 1.0 ###
+Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
 
-```css
-:root {
-	--text-slate-900: #0f172a;
-	--bg-white: #ffffff;
-	--bg-blue-600: #0073aa;
-	/* ... more variables */
-}
-```
+### 0.5 ###
+This version fixes a security related bug.  Upgrade immediately.
 
-### JavaScript Events
+## Arbitrary section ##
 
-The plugin fires custom events for integration:
+You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
+plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
+"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
 
-```javascript
-// Listen for search completion
-document.addEventListener("ctsAwardsSearchComplete", function (event) {
-	console.log("Search completed:", event.detail);
-});
-```
+## A brief Markdown Example ##
 
-## Troubleshooting
+Ordered list:
 
-### Common Issues
+1. Some feature
+1. Another feature
+1. Something else about the plugin
 
-**"ACF plugin is required" notice**
+Unordered list:
 
--   Install and activate Advanced Custom Fields Pro
--   Ensure ACF fields are properly configured
+* something
+* something else
+* third thing
 
-**Awards not displaying**
+Here's a link to [WordPress](https://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
+Titles are optional, naturally.
 
--   Check that awards are published
--   Verify ACF field names match the configuration
--   Check browser console for JavaScript errors
+[markdown syntax]: https://daringfireball.net/projects/markdown/syntax
+            "Markdown is what the parser uses to process much of the readme file"
 
-**Search not working**
+Markdown uses email style notation for blockquotes and I've been told:
+> Asterisks for *emphasis*. Double it up  for **strong**.
 
--   Ensure REST API is accessible: `/wp-json/cts-awards/v1/awards`
--   Check for JavaScript errors in browser console
--   Verify permalink structure is not set to "Plain"
-
-### Debug Mode
-
-Add to wp-config.php for debugging:
-
-```php
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-```
-
-Check logs in `/wp-content/debug.log`
-
-## Hooks and Filters
-
-### Available Hooks
-
-```php
-// Modify award query arguments
-add_filter('cts_awards_query_args', function($args) {
-    // Modify $args
-    return $args;
-});
-
-// Customize REST API response
-add_filter('cts_awards_api_response', function($response) {
-    // Modify $response
-    return $response;
-});
-```
-
-## Support
-
-For support and bug reports:
-
-1. Check the troubleshooting section
-2. Enable WordPress debug mode
-3. Check browser console for errors
-4. Contact the development team with detailed error information
-
-## Changelog
-
-### 1.0.0
-
--   Initial release
--   Award custom post type
--   Search and filtering functionality
--   REST API integration
--   Responsive design with lazy loading
-
----
-
-**Author:** Dalen Design  
-**Version:** 1.0.0  
-**License:** GPL v2 or later
+`<?php code(); // goes in backticks ?>`

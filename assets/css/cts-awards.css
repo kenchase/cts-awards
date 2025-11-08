@@ -73,6 +73,18 @@
 	--transition-all: all 0.15s ease-in-out;
 }
 
+/* Utility Classes */
+
+.cts-awards-visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
 /* Search Form Styles */
 .cts-awards-search-form {
 	background: var(--bg-gray-200);
@@ -86,8 +98,18 @@
 	margin-bottom: var(--space-4);
 }
 
+.cts-awards-search-form .form-group-search {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	align-content: flex-start;
+	justify-content: flex-start;
+	gap: var(--space-2);
+}
+
 .cts-awards-search-form label {
 	display: block;
+	white-space: nowrap;
 	margin-bottom: var(--space-1);
 	font-weight: var(--font-bold);
 	color: var(--text-slate-900);
@@ -99,20 +121,13 @@
 	padding: var(--space-2) var(--space-3);
 	border: 1px solid var(--border-gray-300);
 	border-radius: var(--rounded);
-	/* font-size: var(--text-base); */
 }
 
-.cts-awards-search-form input[type="text"]:focus {
+.cts-awards-search-form input[type="text"]:focus,
+.cts-awards-search-form select:focus {
 	outline: none;
 	border-color: var(--border-blue-600);
 	box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
-}
-
-.cts-awards-search-form .form-text {
-	font-size: var(--text-xs);
-	color: var(--text-slate-500);
-	margin-top: var(--space-1);
-	font-style: italic;
 }
 
 .cts-awards-search-form select:disabled,
@@ -269,6 +284,42 @@
 	}
 }
 
+/* Collapsible Filters Styles */
+.cts-awards-search-form .btn-toggle {
+	display: flex;
+	margin-right: 0;
+	align-items: center;
+	gap: var(--space-2);
+	border: none;
+	cursor: pointer;
+	transition: var(--transition-colors);
+}
+
+.cts-awards-search-form .btn-toggle:focus {
+	outline: 2px solid var(--border-blue-600);
+	outline-offset: 2px;
+}
+
+.cts-awards-search-form .btn-toggle .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	transition: transform 0.3s ease;
+}
+
+.cts-awards-search-form .btn-toggle[aria-expanded="true"] .dashicons {
+	transform: rotate(180deg);
+}
+
+.cts-awards-search-form .collapsible-filters {
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.cts-awards-search-form .collapsible-filters.show {
+	display: block !important;
+}
+
 @media (max-width: 480px) {
 	.cts-award-card {
 		padding: var(--space-4);
@@ -276,5 +327,10 @@
 
 	.cts-recipient {
 		padding: var(--space-3);
+	}
+
+	.btn-toggle {
+		width: 100%;
+		justify-content: center;
 	}
 }

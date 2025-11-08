@@ -194,14 +194,22 @@ function cts_awards_shortcode($atts)
                         data-current-search="' . esc_attr($search) . '">';
 
         // Search input field
-        $output .= '<div class="form-group">';
-        $output .= '<label for="award-search">Search Awards:</label>';
+        $output .= '<div class="form-group form-group-search">';
+        $output .= '<label for="award-search" class="cts-awards-visually-hidden">Search Awards:</label>';
         $output .= '<input type="text" id="award-search" name="search" 
                         value="' . esc_attr($search) . '" 
                         placeholder="Search by name, organization, title, or keywords..." 
                         class="form-control" />';
-        $output .= '<small class="form-text">Search across award titles and recipient information</small>';
+        // Toggle button for filters
+        $output .= '<button type="button" id="toggle-filters" class="btn btn-toggle" aria-expanded="false">';
+        $output .= '<span class="dashicons dashicons-arrow-down-alt2"></span>';
+        $output .= '<span class="toggle-text">Show Filters</span>';
+        $output .= '</button>';
         $output .= '</div>';
+
+
+        // Collapsible filters container
+        $output .= '<div id="collapsible-filters" class="collapsible-filters" style="display: none;">';
 
         // Award dropdown
         $output .= '<div class="form-group">';
@@ -246,6 +254,9 @@ function cts_awards_shortcode($atts)
         }
 
         $output .= '</select>';
+        $output .= '</div>';
+
+        // Close collapsible filters container
         $output .= '</div>';
 
         // Submit button

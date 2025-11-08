@@ -68,6 +68,9 @@ function initAwardsSearchForm() {
 			}
 		});
 	}
+
+	// Initialize collapsible filters toggle
+	initCollapsibleFilters();
 }
 
 /**
@@ -107,7 +110,13 @@ function loadAwardsData() {
 	}
 
 	// Load data with current filters
-	fetchAwardsFromAPI(apiUrl, currentYear, currentPostId, currentCategory, currentSearch);
+	fetchAwardsFromAPI(
+		apiUrl,
+		currentYear,
+		currentPostId,
+		currentCategory,
+		currentSearch
+	);
 }
 
 /**
@@ -167,7 +176,13 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 /**
  * Fetch awards data from REST API
  */
-function fetchAwardsFromAPI(apiUrl, year = "all", postId = "", category = "", search = "") {
+function fetchAwardsFromAPI(
+	apiUrl,
+	year = "all",
+	postId = "",
+	category = "",
+	search = ""
+) {
 	// Build API URL with parameters
 	const url = new URL(apiUrl);
 	if (year !== "all") {
@@ -481,4 +496,39 @@ function truncateWords(text, wordLimit) {
 	const words = text.split(/\s+/);
 	if (words.length <= wordLimit) return text;
 	return words.slice(0, wordLimit).join(" ") + "...";
+}
+
+/**
+ * Initialize collapsible filters functionality
+ */
+function initCollapsibleFilters() {
+	const toggleButton = document.getElementById("toggle-filters");
+	const filtersContainer = document.getElementById("collapsible-filters");
+	const toggleText = toggleButton
+		? toggleButton.querySelector(".toggle-text")
+		: null;
+
+	if (!toggleButton || !filtersContainer || !toggleText) {
+		return;
+	}
+
+	// Handle toggle button click
+	toggleButton.addEventListener("click", function () {
+		const isExpanded =
+			toggleButton.getAttribute("aria-expanded") === "true";
+
+		if (isExpanded) {
+			// Collapse filters
+			toggleButton.setAttribute("aria-expanded", "false");
+			filtersContainer.style.display = "none";
+			filtersContainer.classList.remove("show");
+			toggleText.textContent = "Show Filters";
+		} else {
+			// Expand filters
+			toggleButton.setAttribute("aria-expanded", "true");
+			filtersContainer.style.display = "block";
+			filtersContainer.classList.add("show");
+			toggleText.textContent = "Hide Filters";
+		}
+	});
 }

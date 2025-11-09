@@ -7,6 +7,7 @@ let currentPage = 1;
 let hasNextPage = false;
 let isLoading = false;
 let apiUrl = null;
+let hasForm = false;
 let currentFilters = {
 	year: "all",
 	postId: "",
@@ -98,6 +99,7 @@ function loadAwardsData() {
 
 	if (form) {
 		// Form exists - get data from form attributes
+		hasForm = true;
 		apiUrl = form.dataset.apiUrl;
 		if (!apiUrl) return;
 
@@ -128,6 +130,7 @@ function loadAwardsData() {
 		}
 	} else if (resultsContainer) {
 		// No form but results container exists - get data from results container attributes
+		hasForm = false;
 		apiUrl = resultsContainer.dataset.apiUrl;
 		if (!apiUrl) return;
 
@@ -458,6 +461,11 @@ function updateFilterInfo(year, postId, category, search, responseData) {
 		filterInfoContainer.remove();
 	}
 
+	// Don't display filter info if form is not present
+	if (!hasForm) {
+		return;
+	}
+
 	const filterInfo = [];
 
 	if (postId) {
@@ -627,6 +635,7 @@ function checkScrollPosition() {
 /**
  * Load more awards for lazy loading
  */
+
 function loadMoreAwards() {
 	if (isLoading || !hasNextPage) return;
 

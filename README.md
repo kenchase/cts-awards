@@ -206,7 +206,7 @@ Yes, Advanced Custom Fields (ACF) is a required dependency. The plugin will disp
 
 ### How do I customize the awards display?
 
-The plugin includes CSS classes for easy styling. You can also modify the JavaScript behavior or create custom templates by copying the plugin's template files to your theme.
+The plugin includes CSS classes that can be overridden using theme/page builder CSS.
 
 ### Can I use this plugin with page builders?
 
@@ -215,20 +215,6 @@ Yes, you can use the `[cts-awards]` shortcode in any page builder that supports 
 ### Is the plugin translation-ready?
 
 Yes, the plugin includes a POT file for translations and uses WordPress internationalization functions throughout.
-
-## Screenshots
-
-### 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-
-![This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from](http://ps.w.org/cts-awards/assets/screenshot-1.png)
-
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-
-### 2. This is the second screen shot
-
-![This is the second screen shot](http://ps.w.org/cts-awards/assets/screenshot-2.png)
 
 ## Changelog
 

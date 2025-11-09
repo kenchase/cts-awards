@@ -20,6 +20,19 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Define plugin constants
+if (!defined('CTS_AWARDS_VERSION')) {
+    define('CTS_AWARDS_VERSION', '1.0.0');
+}
+
+if (!defined('CTS_AWARDS_PLUGIN_DIR')) {
+    define('CTS_AWARDS_PLUGIN_DIR', plugin_dir_path(__FILE__));
+}
+
+if (!defined('CTS_AWARDS_PLUGIN_URL')) {
+    define('CTS_AWARDS_PLUGIN_URL', plugin_dir_url(__FILE__));
+}
+
 /**
  * Load plugin text domain for translations
  * 

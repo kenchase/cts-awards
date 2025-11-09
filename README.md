@@ -58,6 +58,16 @@ npm install
 -   `npm run i18n` - Generates translation files
 -   `npm run readme` - Converts readme.txt to README.md
 
+### Asset Loading
+
+The plugin automatically detects the appropriate assets to load based on the environment:
+
+-   **Development Environment**: Loads non-minified `cts-awards.css` and `cts-awards.js` files
+-   **Production Environment**: Automatically detects and loads minified `.min.css` and `.min.js` files
+-   **Smart Detection**: Uses file existence to determine which assets to load - no configuration required
+
+This ensures optimal performance in production while maintaining a smooth development workflow.
+
 ### Production Deployment
 
 The `dist/` folder contains the production-ready version of the plugin with optimized assets. This folder is excluded from version control and should be generated during deployment.

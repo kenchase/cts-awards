@@ -6,31 +6,64 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Check if we should use minified assets
+ * This checks if minified files exist (indicating we're using the dist version)
+ * 
+ * @return bool
+ */
+function cts_awards_use_minified_assets() {
+    $plugin_dir = defined('CTS_AWARDS_PLUGIN_DIR') ? CTS_AWARDS_PLUGIN_DIR : dirname(dirname(__FILE__)) . '/';
+    $min_css_path = $plugin_dir . 'assets/css/cts-awards.min.css';
+    $min_js_path = $plugin_dir . 'assets/js/cts-awards.min.js';
+    
+    $min_css_exists = file_exists($min_css_path);
+    $min_js_exists = file_exists($min_js_path);
+    
+    // For debugging (can be removed in production)
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('CTS Awards: Checking for minified assets in ' . $plugin_dir . 'assets/');
+        error_log('CTS Awards: CSS minified exists: ' . ($min_css_exists ? 'yes' : 'no'));
+        error_log('CTS Awards: JS minified exists: ' . ($min_js_exists ? 'yes' : 'no'));
+    }
+    
+    return $min_css_exists && $min_js_exists;
+}
+
+/**
  * Enqueue CTS Awards assets
  */
 function cts_awards_enqueue_assets()
 {
+    // Determine if we should use minified assets
+    $use_minified = cts_awards_use_minified_assets();
+    $css_suffix = $use_minified ? '.min.css' : '.css';
+    $js_suffix = $use_minified ? '.min.js' : '.js';
+
     // Enqueue dashicons for frontend use
     if (!wp_style_is('dashicons', 'enqueued')) {
         wp_enqueue_style('dashicons');
     }
 
+    // Get plugin URL
+    $plugin_url = defined('CTS_AWARDS_PLUGIN_URL') ? CTS_AWARDS_PLUGIN_URL : plugin_dir_url(dirname(__FILE__));
+    $version = defined('CTS_AWARDS_VERSION') ? CTS_AWARDS_VERSION : '1.0.0';
+
     // Only enqueue if not already enqueued
     if (!wp_style_is('cts-awards-style', 'enqueued')) {
         wp_enqueue_style(
             'cts-awards-style',
-            plugin_dir_url(dirname(__FILE__)) . 'assets/css/cts-awards.css',
+            $plugin_url . 'assets/css/cts-awards' . $css_suffix,
             array('dashicons'),
-            '1.0.0'
+            $version
         );
     }
 
     if (!wp_script_is('cts-awards-script', 'enqueued')) {
         wp_enqueue_script(
             'cts-awards-script',
-            plugin_dir_url(dirname(__FILE__)) . 'assets/js/cts-awards.js',
+            $plugin_url . 'assets/js/cts-awards' . $js_suffix,
             array('jquery'),
-            '1.0.0',
+            $version,
             true
         );
 

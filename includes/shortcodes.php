@@ -186,7 +186,7 @@ function cts_awards_get_available_categories()
 /**
  * CTS Awards Search Form Shortcode
  * 
- * Usage: [cts-awards form="true" year="all" post_id="" category="" search="" page="1" per_page="12"]
+ * Usage: [cts-awards form="true" year="all" post_id="" category="" search="" page="1" per_page="12" numberposts="-1"]
  * 
  * @param array $atts Shortcode attributes
  *   - form: true/false - Show form (true by default)
@@ -196,6 +196,7 @@ function cts_awards_get_available_categories()
  *   - search: none by default, or specific search term
  *   - page: 1 by default, page number for pagination
  *   - per_page: 12 by default, number of posts per page (1-100)
+ *   - numberposts: -1 by default, maximum number of posts to retrieve (-1 for all)
  */
 function cts_awards_shortcode($atts)
 {
@@ -211,7 +212,8 @@ function cts_awards_shortcode($atts)
             'category' => '',
             'search' => '',
             'page' => '1',
-            'per_page' => '12'
+            'per_page' => '12',
+            'numberposts' => '-1'
         ),
         $atts,
         'cts-awards'
@@ -222,11 +224,12 @@ function cts_awards_shortcode($atts)
 
     // Process parameters (URL parameters override shortcode attributes)
     $year = !empty($_GET['year']) ? sanitize_text_field($_GET['year']) : sanitize_text_field($atts['year']);
-    $post_id = !empty($_GET['post_id']) ? intval($_GET['post_id']) : (!empty($atts['post_id']) ? intval($atts['post_id']) : 0);
+    $post_id = !empty($_GET['post_id']) ? intval($_GET['post_id']) : (!empty($atts['post_id']) ? intval($atts['post_id']) : '');
     $category = !empty($_GET['category']) ? sanitize_text_field($_GET['category']) : sanitize_text_field($atts['category']);
     $search = !empty($_GET['search']) ? sanitize_text_field($_GET['search']) : sanitize_text_field($atts['search']);
     $page = max(1, !empty($_GET['page']) ? intval($_GET['page']) : intval($atts['page']));
     $per_page = max(1, min(100, !empty($_GET['per_page']) ? intval($_GET['per_page']) : intval($atts['per_page'])));
+    $numberposts = !empty($_GET['numberposts']) ? intval($_GET['numberposts']) : intval($atts['numberposts']);
 
     // Generate API URL once for consistency
     $api_url = rest_url('cts-awards/v1/awards');
@@ -244,7 +247,8 @@ function cts_awards_shortcode($atts)
                         data-current-category="' . esc_attr($category) . '"
                         data-current-search="' . esc_attr($search) . '"
                         data-current-page="' . esc_attr($page) . '"
-                        data-current-per-page="' . esc_attr($per_page) . '">';
+                        data-current-per-page="' . esc_attr($per_page) . '"
+                        data-current-numberposts="' . esc_attr($numberposts) . '">';
 
         // Search input field
         $output .= '<div class="form-group form-group-search">';
@@ -309,17 +313,6 @@ function cts_awards_shortcode($atts)
         $output .= '</select>';
         $output .= '</div>';
 
-        // Per page dropdown
-        $output .= '<div class="form-group">';
-        $output .= '<label for="award-per-page">' . esc_html__('Results per page:', 'cts-awards') . '</label>';
-        $output .= '<select id="award-per-page" name="per_page">';
-        $per_page_options = array(6, 12, 24, 48, 100);
-        foreach ($per_page_options as $option) {
-            $output .= '<option value="' . esc_attr($option) . '"' . selected($per_page, $option, false) . '>' . esc_html($option) . '</option>';
-        }
-        $output .= '</select>';
-        $output .= '</div>';
-
         // Hidden page field for pagination
         $output .= '<input type="hidden" id="award-page" name="page" value="' . esc_attr($page) . '" />';
 
@@ -348,6 +341,7 @@ function cts_awards_shortcode($atts)
         $output .= ' data-current-search="' . esc_attr($search) . '"';
         $output .= ' data-current-page="' . esc_attr($page) . '"';
         $output .= ' data-current-per-page="' . esc_attr($per_page) . '"';
+        $output .= ' data-current-numberposts="' . esc_attr($numberposts) . '"';
     }
 
     $output .= '>';

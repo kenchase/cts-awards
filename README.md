@@ -141,6 +141,7 @@ Retrieve awards with advanced filtering options.
 -   `search` (string): Search in titles and recipient fields
 -   `page` (integer): Page number for pagination (default: 1)
 -   `per_page` (integer): Results per page (default: 12, max: 100)
+-   `numberposts` (integer): Maximum number of posts to retrieve from database, -1 for all (default: -1)
 
 **Example Requests:**
 
@@ -149,6 +150,7 @@ Retrieve awards with advanced filtering options.
 /wp-json/cts-awards/v1/awards?year=2023
 /wp-json/cts-awards/v1/awards?category=excellence
 /wp-json/cts-awards/v1/awards?search=john&page=2
+/wp-json/cts-awards/v1/awards?numberposts=50&per_page=10
 ```
 
 **Response Format:**
@@ -180,13 +182,13 @@ Display searchable, filterable awards with AJAX functionality and pagination.
 **With Parameters:**
 
 ```
-[cts-awards form="true" year="2023" category="excellence" search="john" page="1" per_page="24"]
+[cts-awards form="true" year="2023" category="excellence" search="john" page="1" per_page="24" numberposts="50"]
 ```
 
 **Complete Example with All Parameters:**
 
 ```
-[cts-awards form="true" year="2024" post_id="123" category="innovation" search="university" page="2" per_page="12"]
+[cts-awards form="true" year="2024" post_id="123" category="innovation" search="university" page="2" per_page="12" numberposts="100"]
 ```
 
 **Available Attributes:**
@@ -198,6 +200,9 @@ Display searchable, filterable awards with AJAX functionality and pagination.
 -   `search` (string): Pre-populate search field with search term (default: empty)
 -   `page` (integer): Initial page number for pagination (default: 1)
 -   `per_page` (integer): Number of awards per page, 1-100 (default: 12)
+-   `numberposts` (integer): Maximum number of posts to retrieve from database, -1 for all (default: -1)
+
+**Note:** The `numberposts` parameter limits the total number of posts retrieved from the database, while `per_page` controls how many are displayed per page for pagination. For example, `numberposts="50"` with `per_page="10"` would retrieve 50 awards total and display 10 per page across 5 pages.
 
 **Features:**
 

@@ -52,6 +52,14 @@ function cts_awards_register_api()
                 'maximum' => 100,
                 'sanitize_callback' => 'absint',
             ),
+            'numberposts' => array(
+                'description' => 'Maximum number of posts to retrieve from database, -1 for all',
+                'type' => 'integer',
+                'default' => -1,
+                'sanitize_callback' => function ($param) {
+                    return intval($param);
+                },
+            ),
 
         ),
     ));
@@ -192,8 +200,10 @@ function cts_awards_get_awards($request)
     $year = $request->get_param('year');
     $category = $request->get_param('category');
     $search = $request->get_param('search');
-    $page = $request->get_param('page') ?: 1;
-    $per_page = $request->get_param('per_page') ?: 12;
+    $page = intval($request->get_param('page')) ?: 1;
+    $per_page = intval($request->get_param('per_page')) ?: 12;
+    $numberposts_param = $request->get_param('numberposts');
+    $numberposts = ($numberposts_param !== null) ? intval($numberposts_param) : -1;
 
     // If search is specified, handle search logic
     if ($search) {
@@ -206,7 +216,7 @@ function cts_awards_get_awards($request)
         $query_args = array(
             'post_type' => 'awards',
             'post_status' => 'publish',
-            'numberposts' => -1,
+            'numberposts' => $numberposts,
             'orderby' => 'title',
             'order' => 'ASC',
             'suppress_filters' => false, // Allow translation filters to work
@@ -385,6 +395,11 @@ function cts_awards_get_awards($request)
         if ($year_comparison !== 0) return $year_comparison;
         return strcmp($a['award']['title'], $b['award']['title']);
     });
+
+    // Apply numberposts limit if specified (and not -1)
+    if ($numberposts > 0) {
+        $award_year_cards = array_slice($award_year_cards, 0, $numberposts);
+    }
 
     // Calculate pagination
     $total_cards = count($award_year_cards);

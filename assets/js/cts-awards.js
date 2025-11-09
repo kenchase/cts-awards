@@ -14,6 +14,7 @@ let currentFilters = {
 	category: "",
 	search: "",
 	perPage: 12,
+	numberposts: -1,
 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -117,6 +118,11 @@ function getCurrentFilters(container) {
 				(container ? container.dataset.currentPerPage : null) ||
 				"12"
 		),
+		numberposts: parseInt(
+			urlParams.get("numberposts") ||
+				(container ? container.dataset.currentNumberposts : null) ||
+				"-1"
+		),
 	};
 }
 
@@ -176,6 +182,7 @@ function loadAwardsData() {
 		filters.search,
 		1,
 		filters.perPage,
+		filters.numberposts,
 		false
 	);
 }
@@ -209,7 +216,17 @@ function resetFilters(apiUrl) {
 	const filters = getCurrentFilters(resultsContainer);
 
 	// Fetch all awards (no filters)
-	fetchAwardsFromAPI(apiUrl, "all", "", "", "", 1, filters.perPage, false);
+	fetchAwardsFromAPI(
+		apiUrl,
+		"all",
+		"",
+		"",
+		"",
+		1,
+		filters.perPage,
+		filters.numberposts,
+		false
+	);
 }
 
 /**
@@ -224,6 +241,7 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	const category = formData.get("category") || "";
 	const search = formData.get("search") || "";
 	const perPage = parseInt(formData.get("per_page") || "12");
+	const numberposts = parseInt(form.dataset.currentNumberposts || "-1");
 
 	console.log("Form submission filters:", {
 		year,
@@ -259,6 +277,7 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 		search,
 		1,
 		perPage,
+		numberposts,
 		false
 	);
 }
@@ -274,6 +293,7 @@ function fetchAwardsFromAPI(
 	search = "",
 	page = 1,
 	perPage = 12,
+	numberposts = -1,
 	append = false
 ) {
 	// Build API URL with parameters
@@ -281,7 +301,7 @@ function fetchAwardsFromAPI(
 	if (year !== "all") {
 		url.searchParams.append("year", year);
 	}
-	if (postId) {
+	if (postId && postId !== "0" && postId !== 0) {
 		url.searchParams.append("post_id", postId);
 	}
 	if (category) {
@@ -292,6 +312,9 @@ function fetchAwardsFromAPI(
 	}
 	url.searchParams.append("page", page);
 	url.searchParams.append("per_page", perPage);
+	if (numberposts !== -1) {
+		url.searchParams.append("numberposts", numberposts);
+	}
 
 	console.log("API URL being called:", url.toString());
 	console.log("Filter parameters:", {
@@ -328,6 +351,7 @@ function fetchAwardsFromAPI(
 				category,
 				search,
 				perPage,
+				numberposts,
 				append
 			);
 			// Update filter info only for initial load
@@ -355,6 +379,7 @@ function displayAwardsResults(
 	category,
 	search = "",
 	perPage = 12,
+	numberposts = -1,
 	append = false
 ) {
 	const parentContainer = document.querySelector(".cts-awards-results");
@@ -370,7 +395,7 @@ function displayAwardsResults(
 	}
 
 	// Update current filters
-	currentFilters = { year, postId, category, search, perPage };
+	currentFilters = { year, postId, category, search, perPage, numberposts };
 	isLoading = false;
 
 	// Handle loading states
@@ -701,6 +726,7 @@ function loadMoreAwards() {
 		currentFilters.search,
 		nextPage,
 		currentFilters.perPage,
+		currentFilters.numberposts,
 		true
 	);
 }

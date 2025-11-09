@@ -186,42 +186,16 @@ function cts_awards_shortcode($atts)
     // Convert form parameter to boolean
     $show_form = filter_var($atts['form'], FILTER_VALIDATE_BOOLEAN);
 
-    // Check for URL parameters and override attributes if present
-    if (isset($_GET['year']) && !empty($_GET['year'])) {
-        $year = sanitize_text_field($_GET['year']);
-    } else {
-        $year = sanitize_text_field($atts['year']);
-    }
+    // Process parameters (URL parameters override shortcode attributes)
+    $year = !empty($_GET['year']) ? sanitize_text_field($_GET['year']) : sanitize_text_field($atts['year']);
+    $post_id = !empty($_GET['post_id']) ? intval($_GET['post_id']) : (!empty($atts['post_id']) ? intval($atts['post_id']) : 0);
+    $category = !empty($_GET['category']) ? sanitize_text_field($_GET['category']) : sanitize_text_field($atts['category']);
+    $search = !empty($_GET['search']) ? sanitize_text_field($_GET['search']) : sanitize_text_field($atts['search']);
+    $page = max(1, !empty($_GET['page']) ? intval($_GET['page']) : intval($atts['page']));
+    $per_page = max(1, min(100, !empty($_GET['per_page']) ? intval($_GET['per_page']) : intval($atts['per_page'])));
 
-    if (isset($_GET['post_id']) && !empty($_GET['post_id'])) {
-        $post_id = intval($_GET['post_id']);
-    } else {
-        $post_id = !empty($atts['post_id']) ? intval($atts['post_id']) : 0;
-    }
-
-    if (isset($_GET['category']) && !empty($_GET['category'])) {
-        $category = sanitize_text_field($_GET['category']);
-    } else {
-        $category = sanitize_text_field($atts['category']);
-    }
-
-    if (isset($_GET['search']) && !empty($_GET['search'])) {
-        $search = sanitize_text_field($_GET['search']);
-    } else {
-        $search = sanitize_text_field($atts['search']);
-    }
-
-    if (isset($_GET['page']) && !empty($_GET['page'])) {
-        $page = max(1, intval($_GET['page']));
-    } else {
-        $page = max(1, intval($atts['page']));
-    }
-
-    if (isset($_GET['per_page']) && !empty($_GET['per_page'])) {
-        $per_page = max(1, min(100, intval($_GET['per_page'])));
-    } else {
-        $per_page = max(1, min(100, intval($atts['per_page'])));
-    }
+    // Generate API URL once for consistency
+    $api_url = rest_url('cts-awards/v1/awards');
 
     // Start building output
     $output = '';
@@ -230,7 +204,7 @@ function cts_awards_shortcode($atts)
     if ($show_form) {
         $output .= '<div class="cts-awards-search-form">';
         $output .= '<form id="cts-awards-search" method="get" 
-                        data-api-url="' . esc_url(rest_url('cts-awards/v1/awards')) . '"
+                        data-api-url="' . esc_url($api_url) . '"
                         data-current-year="' . esc_attr($year) . '"
                         data-current-post-id="' . esc_attr($post_id) . '"
                         data-current-category="' . esc_attr($category) . '"
@@ -330,10 +304,10 @@ function cts_awards_shortcode($atts)
 
     // Add awards display container - JavaScript will populate this via REST API
     $output .= '<div class="cts-awards-results"';
-    
+
     // If form is not shown, add data attributes to results container for JavaScript to access
     if (!$show_form) {
-        $output .= ' data-api-url="' . esc_url(rest_url('cts-awards/v1/awards')) . '"';
+        $output .= ' data-api-url="' . esc_url($api_url) . '"';
         $output .= ' data-current-year="' . esc_attr($year) . '"';
         $output .= ' data-current-post-id="' . esc_attr($post_id) . '"';
         $output .= ' data-current-category="' . esc_attr($category) . '"';
@@ -341,7 +315,7 @@ function cts_awards_shortcode($atts)
         $output .= ' data-current-page="' . esc_attr($page) . '"';
         $output .= ' data-current-per-page="' . esc_attr($per_page) . '"';
     }
-    
+
     $output .= '>';
     $output .= '<div class="cts-loading"><p>' . esc_html__('Loading awards...', 'cts-awards') . '</p></div>';
     $output .= '</div>';

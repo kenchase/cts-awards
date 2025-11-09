@@ -89,87 +89,65 @@ function initAwardsSearchForm() {
 }
 
 /**
+ * Get current filter parameters from URL or container data
+ */
+function getCurrentFilters(container) {
+	const urlParams = new URLSearchParams(window.location.search);
+	
+	return {
+		year: urlParams.get("year") || (container ? container.dataset.currentYear : null) || "all",
+		postId: urlParams.get("post_id") || (container ? container.dataset.currentPostId : null) || "",
+		category: urlParams.get("category") || (container ? container.dataset.currentCategory : null) || "",
+		search: urlParams.get("search") || (container ? container.dataset.currentSearch : null) || ""
+	};
+}
+
+/**
+ * Update form fields with current filter values
+ */
+function updateFormFields(filters) {
+	const yearSelect = document.getElementById("award-year");
+	const awardSelect = document.getElementById("award-select");
+	const categorySelect = document.getElementById("award-category");
+	const searchInput = document.getElementById("award-search");
+
+	if (yearSelect && filters.year !== "all") yearSelect.value = filters.year;
+	if (awardSelect && filters.postId) awardSelect.value = filters.postId;
+	if (categorySelect && filters.category) categorySelect.value = filters.category;
+	if (searchInput && filters.search) searchInput.value = filters.search;
+}
+
+/**
  * Load initial awards data
  */
 function loadAwardsData() {
 	const form = document.getElementById("cts-awards-search");
 	const resultsContainer = document.querySelector(".cts-awards-results");
 
-	let currentYear, currentPostId, currentCategory, currentSearch;
-
+	// Determine if form exists and get API URL
 	if (form) {
-		// Form exists - get data from form attributes
 		hasForm = true;
 		apiUrl = form.dataset.apiUrl;
-		if (!apiUrl) return;
-
-		// Get current filters from URL parameters
-		const urlParams = new URLSearchParams(window.location.search);
-		currentYear = urlParams.get("year") || "all";
-		currentPostId = urlParams.get("post_id") || "";
-		currentCategory = urlParams.get("category") || "";
-		currentSearch = urlParams.get("search") || "";
-
-		// Set form values to match URL parameters
-		const yearSelect = document.getElementById("award-year");
-		const awardSelect = document.getElementById("award-select");
-		const categorySelect = document.getElementById("award-category");
-		const searchInput = document.getElementById("award-search");
-
-		if (yearSelect && currentYear !== "all") {
-			yearSelect.value = currentYear;
-		}
-		if (awardSelect && currentPostId) {
-			awardSelect.value = currentPostId;
-		}
-		if (categorySelect && currentCategory) {
-			categorySelect.value = currentCategory;
-		}
-		if (searchInput && currentSearch) {
-			searchInput.value = currentSearch;
-		}
 	} else if (resultsContainer) {
-		// No form but results container exists - get data from results container attributes
 		hasForm = false;
 		apiUrl = resultsContainer.dataset.apiUrl;
-		if (!apiUrl) return;
-
-		// Get current filters from URL parameters first, then fallback to data attributes
-		const urlParams = new URLSearchParams(window.location.search);
-		currentYear =
-			urlParams.get("year") ||
-			resultsContainer.dataset.currentYear ||
-			"all";
-		currentPostId =
-			urlParams.get("post_id") ||
-			resultsContainer.dataset.currentPostId ||
-			"";
-		currentCategory =
-			urlParams.get("category") ||
-			resultsContainer.dataset.currentCategory ||
-			"";
-		currentSearch =
-			urlParams.get("search") ||
-			resultsContainer.dataset.currentSearch ||
-			"";
 	} else {
-		// Neither form nor results container found
-		return;
+		return; // Neither form nor results container found
 	}
 
-	// Reset pagination for initial load
-	currentPage = 1;
+	if (!apiUrl) return;
 
-	// Load data with current filters
-	fetchAwardsFromAPI(
-		apiUrl,
-		currentYear,
-		currentPostId,
-		currentCategory,
-		currentSearch,
-		1,
-		false
-	);
+	// Get current filter values
+	const filters = getCurrentFilters(resultsContainer);
+	
+	// Update form fields if form exists
+	if (hasForm) {
+		updateFormFields(filters);
+	}
+
+	// Reset pagination and load data
+	currentPage = 1;
+	fetchAwardsFromAPI(apiUrl, filters.year, filters.postId, filters.category, filters.search, 1, false);
 }
 
 /**

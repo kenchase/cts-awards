@@ -13,9 +13,9 @@ if (!defined('ABSPATH')) {
 function cts_awards_register_api()
 {
     register_rest_route('cts-awards/v1', '/awards', array(
-        'methods' => 'GET',
+        'methods' => WP_REST_Server::READABLE,
         'callback' => 'cts_awards_get_awards',
-        'permission_callback' => '__return_true',
+        'permission_callback' => 'cts_awards_rest_permission_check',
         'args' => array(
             'post_id' => array(
                 'description' => 'Filter awards by specific post ID',
@@ -65,6 +65,19 @@ function cts_awards_register_api()
     ));
 }
 add_action('rest_api_init', 'cts_awards_register_api');
+
+/**
+ * Permission callback for REST API endpoint
+ * 
+ * @since 1.0.0
+ * @return bool Always returns true for public access
+ */
+function cts_awards_rest_permission_check()
+{
+    // This is a public endpoint for displaying awards
+    // Could add rate limiting or other security measures here in the future
+    return true;
+}
 
 /**
  * Search awards by title and custom fields

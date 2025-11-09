@@ -152,13 +152,16 @@ function cts_awards_get_available_categories()
 /**
  * CTS Awards Search Form Shortcode
  * 
- * Usage: [cts-awards form="true" year="all" post_id="" category=""]
+ * Usage: [cts-awards form="true" year="all" post_id="" category="" search="" page="1" per_page="12"]
  * 
  * @param array $atts Shortcode attributes
  *   - form: true/false - Show form (true by default)
  *   - year: all by default, or specific year
  *   - post_id: none by default, or specific post ID to filter by
  *   - category: none by default, or specific category slug/ID to filter by
+ *   - search: none by default, or specific search term
+ *   - page: 1 by default, page number for pagination
+ *   - per_page: 12 by default, number of posts per page (1-100)
  */
 function cts_awards_shortcode($atts)
 {
@@ -171,7 +174,10 @@ function cts_awards_shortcode($atts)
             'form' => 'true',
             'year' => 'all',
             'post_id' => '',
-            'category' => ''
+            'category' => '',
+            'search' => '',
+            'page' => '1',
+            'per_page' => '12'
         ),
         $atts,
         'cts-awards'
@@ -202,7 +208,19 @@ function cts_awards_shortcode($atts)
     if (isset($_GET['search']) && !empty($_GET['search'])) {
         $search = sanitize_text_field($_GET['search']);
     } else {
-        $search = '';
+        $search = sanitize_text_field($atts['search']);
+    }
+
+    if (isset($_GET['page']) && !empty($_GET['page'])) {
+        $page = max(1, intval($_GET['page']));
+    } else {
+        $page = max(1, intval($atts['page']));
+    }
+
+    if (isset($_GET['per_page']) && !empty($_GET['per_page'])) {
+        $per_page = max(1, min(100, intval($_GET['per_page'])));
+    } else {
+        $per_page = max(1, min(100, intval($atts['per_page'])));
     }
 
     // Start building output
@@ -216,7 +234,9 @@ function cts_awards_shortcode($atts)
                         data-current-year="' . esc_attr($year) . '"
                         data-current-post-id="' . esc_attr($post_id) . '"
                         data-current-category="' . esc_attr($category) . '"
-                        data-current-search="' . esc_attr($search) . '">';
+                        data-current-search="' . esc_attr($search) . '"
+                        data-current-page="' . esc_attr($page) . '"
+                        data-current-per-page="' . esc_attr($per_page) . '">';
 
         // Search input field
         $output .= '<div class="form-group form-group-search">';
@@ -280,6 +300,20 @@ function cts_awards_shortcode($atts)
 
         $output .= '</select>';
         $output .= '</div>';
+
+        // Per page dropdown
+        $output .= '<div class="form-group">';
+        $output .= '<label for="award-per-page">' . esc_html__('Results per page:', 'cts-awards') . '</label>';
+        $output .= '<select id="award-per-page" name="per_page">';
+        $per_page_options = array(6, 12, 24, 48, 100);
+        foreach ($per_page_options as $option) {
+            $output .= '<option value="' . esc_attr($option) . '"' . selected($per_page, $option, false) . '>' . esc_html($option) . '</option>';
+        }
+        $output .= '</select>';
+        $output .= '</div>';
+
+        // Hidden page field for pagination
+        $output .= '<input type="hidden" id="award-page" name="page" value="' . esc_attr($page) . '" />';
 
         // Close collapsible filters container
         $output .= '</div>';

@@ -159,7 +159,7 @@ Retrieve awards with advanced filtering options.
 
 ### `[cts-awards]` - Main Awards Display
 
-Display searchable, filterable awards with AJAX functionality.
+Display searchable, filterable awards with AJAX functionality and pagination.
 
 **Basic Usage:**
 
@@ -170,19 +170,31 @@ Display searchable, filterable awards with AJAX functionality.
 **With Parameters:**
 
 ```
-[cts-awards show_search="true" show_filters="true"]
+[cts-awards form="true" year="2023" category="excellence" search="john" page="1" per_page="24"]
+```
+
+**Complete Example with All Parameters:**
+
+```
+[cts-awards form="true" year="2024" post_id="123" category="innovation" search="university" page="2" per_page="12"]
 ```
 
 **Available Attributes:**
 
--   `show_search` (true/false): Display search box (default: true)
--   `show_filters` (true/false): Display filter dropdowns (default: true)
+-   `form` (true/false): Show the search and filter form (default: true)
+-   `year` (string): Filter by specific recipient year, or "all" for all years (default: "all")
+-   `post_id` (integer): Display specific award by post ID (default: empty - shows all)
+-   `category` (string): Filter by award category slug or ID (default: empty - all categories)
+-   `search` (string): Pre-populate search field with search term (default: empty)
+-   `page` (integer): Initial page number for pagination (default: 1)
+-   `per_page` (integer): Number of awards per page, 1-100 (default: 12)
 
 **Features:**
 
 -   **Live Search**: Real-time search across award titles and recipient information
 -   **Advanced Filters**: Filter by year, category, and award name
--   **Infinite Scroll**: Automatic loading of additional results
+-   **Pagination**: Navigate through results with customizable results per page
+-   **Flexible Display**: Control initial filters, search terms, and pagination via shortcode attributes
 -   **Responsive Design**: Mobile-friendly interface
 -   **AJAX Loading**: Fast, seamless user experience
 

@@ -6,6 +6,7 @@
 let currentPage = 1;
 let hasNextPage = false;
 let isLoading = false;
+let apiUrl = null;
 let currentFilters = {
 	year: "all",
 	postId: "",
@@ -91,35 +92,66 @@ function initAwardsSearchForm() {
  */
 function loadAwardsData() {
 	const form = document.getElementById("cts-awards-search");
-	if (!form) return;
+	const resultsContainer = document.querySelector(".cts-awards-results");
 
-	const apiUrl = form.dataset.apiUrl;
-	if (!apiUrl) return;
+	let currentYear, currentPostId, currentCategory, currentSearch;
 
-	// Get current filters from URL parameters
-	const urlParams = new URLSearchParams(window.location.search);
-	const currentYear = urlParams.get("year") || "all";
-	const currentPostId = urlParams.get("post_id") || "";
-	const currentCategory = urlParams.get("category") || "";
-	const currentSearch = urlParams.get("search") || "";
+	if (form) {
+		// Form exists - get data from form attributes
+		apiUrl = form.dataset.apiUrl;
+		if (!apiUrl) return;
 
-	// Set form values to match URL parameters
-	const yearSelect = document.getElementById("award-year");
-	const awardSelect = document.getElementById("award-select");
-	const categorySelect = document.getElementById("award-category");
-	const searchInput = document.getElementById("award-search");
+		// Get current filters from URL parameters
+		const urlParams = new URLSearchParams(window.location.search);
+		currentYear = urlParams.get("year") || "all";
+		currentPostId = urlParams.get("post_id") || "";
+		currentCategory = urlParams.get("category") || "";
+		currentSearch = urlParams.get("search") || "";
 
-	if (yearSelect && currentYear !== "all") {
-		yearSelect.value = currentYear;
-	}
-	if (awardSelect && currentPostId) {
-		awardSelect.value = currentPostId;
-	}
-	if (categorySelect && currentCategory) {
-		categorySelect.value = currentCategory;
-	}
-	if (searchInput && currentSearch) {
-		searchInput.value = currentSearch;
+		// Set form values to match URL parameters
+		const yearSelect = document.getElementById("award-year");
+		const awardSelect = document.getElementById("award-select");
+		const categorySelect = document.getElementById("award-category");
+		const searchInput = document.getElementById("award-search");
+
+		if (yearSelect && currentYear !== "all") {
+			yearSelect.value = currentYear;
+		}
+		if (awardSelect && currentPostId) {
+			awardSelect.value = currentPostId;
+		}
+		if (categorySelect && currentCategory) {
+			categorySelect.value = currentCategory;
+		}
+		if (searchInput && currentSearch) {
+			searchInput.value = currentSearch;
+		}
+	} else if (resultsContainer) {
+		// No form but results container exists - get data from results container attributes
+		apiUrl = resultsContainer.dataset.apiUrl;
+		if (!apiUrl) return;
+
+		// Get current filters from URL parameters first, then fallback to data attributes
+		const urlParams = new URLSearchParams(window.location.search);
+		currentYear =
+			urlParams.get("year") ||
+			resultsContainer.dataset.currentYear ||
+			"all";
+		currentPostId =
+			urlParams.get("post_id") ||
+			resultsContainer.dataset.currentPostId ||
+			"";
+		currentCategory =
+			urlParams.get("category") ||
+			resultsContainer.dataset.currentCategory ||
+			"";
+		currentSearch =
+			urlParams.get("search") ||
+			resultsContainer.dataset.currentSearch ||
+			"";
+	} else {
+		// Neither form nor results container found
+		return;
 	}
 
 	// Reset pagination for initial load
@@ -308,8 +340,7 @@ function displayAwardsResults(
 		// Show no results message for initial load
 		const noResultsDiv = document.createElement("div");
 		noResultsDiv.className = "cts-no-awards";
-		noResultsDiv.innerHTML =
-			`<p>${ctsAwardsAjax.strings.noResults}</p>`;
+		noResultsDiv.innerHTML = `<p>${ctsAwardsAjax.strings.noResults}</p>`;
 		parentContainer.appendChild(noResultsDiv);
 		return;
 	}
@@ -380,30 +411,30 @@ function generateAwardCardHTML(award, year, recipients) {
 			.filter(Boolean)
 			.join(" ");
 		if (recipientName) {
-			html += `<div class="cts-recipient-name"><strong>${ctsAwardsAjax.strings.recipient}</strong> ${escapeHtml(
-				recipientName
-			)}</div>`;
+			html += `<div class="cts-recipient-name"><strong>${
+				ctsAwardsAjax.strings.recipient
+			}</strong> ${escapeHtml(recipientName)}</div>`;
 		}
 
 		// Title
 		if (recipient.title) {
-			html += `<div class="cts-recipient-title"><strong>${ctsAwardsAjax.strings.title}</strong> ${escapeHtml(
-				recipient.title
-			)}</div>`;
+			html += `<div class="cts-recipient-title"><strong>${
+				ctsAwardsAjax.strings.title
+			}</strong> ${escapeHtml(recipient.title)}</div>`;
 		}
 
 		// Organization
 		if (recipient.organization) {
-			html += `<div class="cts-recipient-org"><strong>${ctsAwardsAjax.strings.organization}</strong> ${escapeHtml(
-				recipient.organization
-			)}</div>`;
+			html += `<div class="cts-recipient-org"><strong>${
+				ctsAwardsAjax.strings.organization
+			}</strong> ${escapeHtml(recipient.organization)}</div>`;
 		}
 
 		// Abstract Title
 		if (recipient.abstract_title) {
-			html += `<div class="cts-recipient-abstract"><strong>${ctsAwardsAjax.strings.abstractTitle}</strong> ${escapeHtml(
-				recipient.abstract_title
-			)}</div>`;
+			html += `<div class="cts-recipient-abstract"><strong>${
+				ctsAwardsAjax.strings.abstractTitle
+			}</strong> ${escapeHtml(recipient.abstract_title)}</div>`;
 		}
 
 		html += "</div></div>"; // Close recipient-details and recipient
@@ -599,10 +630,7 @@ function checkScrollPosition() {
 function loadMoreAwards() {
 	if (isLoading || !hasNextPage) return;
 
-	const form = document.getElementById("cts-awards-search");
-	if (!form) return;
-
-	const apiUrl = form.dataset.apiUrl;
+	// Use global apiUrl variable instead of looking for form
 	if (!apiUrl) return;
 
 	isLoading = true;

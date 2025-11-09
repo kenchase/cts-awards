@@ -329,7 +329,20 @@ function cts_awards_shortcode($atts)
     }
 
     // Add awards display container - JavaScript will populate this via REST API
-    $output .= '<div class="cts-awards-results">';
+    $output .= '<div class="cts-awards-results"';
+    
+    // If form is not shown, add data attributes to results container for JavaScript to access
+    if (!$show_form) {
+        $output .= ' data-api-url="' . esc_url(rest_url('cts-awards/v1/awards')) . '"';
+        $output .= ' data-current-year="' . esc_attr($year) . '"';
+        $output .= ' data-current-post-id="' . esc_attr($post_id) . '"';
+        $output .= ' data-current-category="' . esc_attr($category) . '"';
+        $output .= ' data-current-search="' . esc_attr($search) . '"';
+        $output .= ' data-current-page="' . esc_attr($page) . '"';
+        $output .= ' data-current-per-page="' . esc_attr($per_page) . '"';
+    }
+    
+    $output .= '>';
     $output .= '<div class="cts-loading"><p>' . esc_html__('Loading awards...', 'cts-awards') . '</p></div>';
     $output .= '</div>';
 

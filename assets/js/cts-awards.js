@@ -13,6 +13,7 @@ let currentFilters = {
 	postId: "",
 	category: "",
 	search: "",
+	perPage: 12,
 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -93,12 +94,29 @@ function initAwardsSearchForm() {
  */
 function getCurrentFilters(container) {
 	const urlParams = new URLSearchParams(window.location.search);
-	
+
 	return {
-		year: urlParams.get("year") || (container ? container.dataset.currentYear : null) || "all",
-		postId: urlParams.get("post_id") || (container ? container.dataset.currentPostId : null) || "",
-		category: urlParams.get("category") || (container ? container.dataset.currentCategory : null) || "",
-		search: urlParams.get("search") || (container ? container.dataset.currentSearch : null) || ""
+		year:
+			urlParams.get("year") ||
+			(container ? container.dataset.currentYear : null) ||
+			"all",
+		postId:
+			urlParams.get("post_id") ||
+			(container ? container.dataset.currentPostId : null) ||
+			"",
+		category:
+			urlParams.get("category") ||
+			(container ? container.dataset.currentCategory : null) ||
+			"",
+		search:
+			urlParams.get("search") ||
+			(container ? container.dataset.currentSearch : null) ||
+			"",
+		perPage: parseInt(
+			urlParams.get("per_page") ||
+				(container ? container.dataset.currentPerPage : null) ||
+				"12"
+		),
 	};
 }
 
@@ -110,11 +128,14 @@ function updateFormFields(filters) {
 	const awardSelect = document.getElementById("award-select");
 	const categorySelect = document.getElementById("award-category");
 	const searchInput = document.getElementById("award-search");
+	const perPageSelect = document.getElementById("award-per-page");
 
 	if (yearSelect && filters.year !== "all") yearSelect.value = filters.year;
 	if (awardSelect && filters.postId) awardSelect.value = filters.postId;
-	if (categorySelect && filters.category) categorySelect.value = filters.category;
+	if (categorySelect && filters.category)
+		categorySelect.value = filters.category;
 	if (searchInput && filters.search) searchInput.value = filters.search;
+	if (perPageSelect && filters.perPage) perPageSelect.value = filters.perPage;
 }
 
 /**
@@ -139,7 +160,7 @@ function loadAwardsData() {
 
 	// Get current filter values
 	const filters = getCurrentFilters(resultsContainer);
-	
+
 	// Update form fields if form exists
 	if (hasForm) {
 		updateFormFields(filters);
@@ -147,7 +168,16 @@ function loadAwardsData() {
 
 	// Reset pagination and load data
 	currentPage = 1;
-	fetchAwardsFromAPI(apiUrl, filters.year, filters.postId, filters.category, filters.search, 1, false);
+	fetchAwardsFromAPI(
+		apiUrl,
+		filters.year,
+		filters.postId,
+		filters.category,
+		filters.search,
+		1,
+		filters.perPage,
+		false
+	);
 }
 
 /**
@@ -159,11 +189,13 @@ function resetFilters(apiUrl) {
 	const awardSelect = document.getElementById("award-select");
 	const categorySelect = document.getElementById("award-category");
 	const searchInput = document.getElementById("award-search");
+	const perPageSelect = document.getElementById("award-per-page");
 
 	if (yearSelect) yearSelect.value = "all";
 	if (awardSelect) awardSelect.value = "";
 	if (categorySelect) categorySelect.value = "";
 	if (searchInput) searchInput.value = "";
+	if (perPageSelect) perPageSelect.value = "12";
 
 	// Update URL without parameters
 	const currentUrl = new URL(window.location);
@@ -172,8 +204,12 @@ function resetFilters(apiUrl) {
 	// Reset pagination for reset
 	currentPage = 1;
 
+	// Get the per_page value from form or container
+	const resultsContainer = document.querySelector(".cts-awards-results");
+	const filters = getCurrentFilters(resultsContainer);
+
 	// Fetch all awards (no filters)
-	fetchAwardsFromAPI(apiUrl, "all", "", "", "", 1, false);
+	fetchAwardsFromAPI(apiUrl, "all", "", "", "", 1, filters.perPage, false);
 }
 
 /**
@@ -187,8 +223,15 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	const postId = formData.get("post_id") || "";
 	const category = formData.get("category") || "";
 	const search = formData.get("search") || "";
+	const perPage = parseInt(formData.get("per_page") || "12");
 
-	console.log("Form submission filters:", { year, postId, category, search });
+	console.log("Form submission filters:", {
+		year,
+		postId,
+		category,
+		search,
+		perPage,
+	});
 
 	// Update URL for bookmarkability
 	const params = new URLSearchParams();
@@ -196,6 +239,7 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	if (year !== "all") params.append("year", year);
 	if (category) params.append("category", category);
 	if (search) params.append("search", search);
+	if (perPage !== 12) params.append("per_page", perPage);
 
 	const currentUrl = new URL(window.location);
 	const newUrl =
@@ -207,7 +251,16 @@ function handleFormSubmissionViaAPI(form, apiUrl) {
 	currentPage = 1;
 
 	// Fetch filtered data from API
-	fetchAwardsFromAPI(apiUrl, year, postId, category, search, 1, false);
+	fetchAwardsFromAPI(
+		apiUrl,
+		year,
+		postId,
+		category,
+		search,
+		1,
+		perPage,
+		false
+	);
 }
 
 /**
@@ -220,6 +273,7 @@ function fetchAwardsFromAPI(
 	category = "",
 	search = "",
 	page = 1,
+	perPage = 12,
 	append = false
 ) {
 	// Build API URL with parameters
@@ -237,10 +291,17 @@ function fetchAwardsFromAPI(
 		url.searchParams.append("search", search);
 	}
 	url.searchParams.append("page", page);
-	url.searchParams.append("per_page", 12);
+	url.searchParams.append("per_page", perPage);
 
 	console.log("API URL being called:", url.toString());
-	console.log("Filter parameters:", { year, postId, category, search, page });
+	console.log("Filter parameters:", {
+		year,
+		postId,
+		category,
+		search,
+		page,
+		perPage,
+	});
 
 	// Show loading state only if not appending
 	if (!append) {
@@ -260,7 +321,15 @@ function fetchAwardsFromAPI(
 		.then((data) => {
 			console.log("API Response:", data);
 			// Update the results display
-			displayAwardsResults(data, year, postId, category, search, append);
+			displayAwardsResults(
+				data,
+				year,
+				postId,
+				category,
+				search,
+				perPage,
+				append
+			);
 			// Update filter info only for initial load
 			if (!append) {
 				updateFilterInfo(year, postId, category, search, data);
@@ -285,6 +354,7 @@ function displayAwardsResults(
 	postId,
 	category,
 	search = "",
+	perPage = 12,
 	append = false
 ) {
 	const parentContainer = document.querySelector(".cts-awards-results");
@@ -300,7 +370,7 @@ function displayAwardsResults(
 	}
 
 	// Update current filters
-	currentFilters = { year, postId, category, search };
+	currentFilters = { year, postId, category, search, perPage };
 	isLoading = false;
 
 	// Handle loading states
@@ -630,6 +700,7 @@ function loadMoreAwards() {
 		currentFilters.category,
 		currentFilters.search,
 		nextPage,
+		currentFilters.perPage,
 		true
 	);
 }

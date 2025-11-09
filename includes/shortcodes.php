@@ -11,21 +11,22 @@ if (!defined('ABSPATH')) {
  * 
  * @return bool
  */
-function cts_awards_use_minified_assets() {
+function cts_awards_use_minified_assets()
+{
     $plugin_dir = defined('CTS_AWARDS_PLUGIN_DIR') ? CTS_AWARDS_PLUGIN_DIR : dirname(dirname(__FILE__)) . '/';
     $min_css_path = $plugin_dir . 'assets/css/cts-awards.min.css';
     $min_js_path = $plugin_dir . 'assets/js/cts-awards.min.js';
-    
+
     $min_css_exists = file_exists($min_css_path);
     $min_js_exists = file_exists($min_js_path);
-    
+
     // For debugging (can be removed in production)
     if (defined('WP_DEBUG') && WP_DEBUG) {
         error_log('CTS Awards: Checking for minified assets in ' . $plugin_dir . 'assets/');
         error_log('CTS Awards: CSS minified exists: ' . ($min_css_exists ? 'yes' : 'no'));
         error_log('CTS Awards: JS minified exists: ' . ($min_js_exists ? 'yes' : 'no'));
     }
-    
+
     return $min_css_exists && $min_js_exists;
 }
 
